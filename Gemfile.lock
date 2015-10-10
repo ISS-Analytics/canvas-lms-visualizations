@@ -5,6 +5,11 @@ GEM
     daemons (1.2.3)
     eventmachine (1.0.8)
     ffi (1.9.10)
+    httparty (0.13.7)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
+    json (1.8.3)
+    multi_xml (0.5.5)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -29,6 +34,7 @@ PLATFORMS
 
 DEPENDENCIES
   config_env
+  httparty
   rack-ssl-enforcer
   rake
   rbnacl-libsodium
