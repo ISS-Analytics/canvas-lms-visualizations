@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    config_env (0.1.0)
     daemons (1.2.3)
     eventmachine (1.0.8)
     rack (1.6.4)
@@ -20,5 +21,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  config_env
   sinatra
   thin

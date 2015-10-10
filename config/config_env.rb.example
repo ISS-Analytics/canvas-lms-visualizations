@@ -1,0 +1,6 @@
+# Copy this file to [app]/config/config_env.rb
+# Replace :[ENV_NAME] with environment name
+
+config_env :[ENV_NAME] do
+
+end
