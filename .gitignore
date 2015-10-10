@@ -1,0 +1,3 @@
+files/*
+config/*.rb
+db/*.db
