@@ -4,4 +4,5 @@
 
 config_env :[ENV_NAME] do
   set :ACCESS_TOKEN, [Canvas access token]
+  set :MSG_KEY, [Session secret key]
 end

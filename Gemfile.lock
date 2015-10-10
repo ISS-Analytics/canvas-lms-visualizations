@@ -4,9 +4,16 @@ GEM
     config_env (0.1.0)
     daemons (1.2.3)
     eventmachine (1.0.8)
+    ffi (1.9.10)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
+    rack-ssl-enforcer (0.2.9)
+    rake (10.4.2)
+    rbnacl (3.2.0)
+      ffi
+    rbnacl-libsodium (1.0.3)
+      rbnacl (~> 3.0, >= 3.0.1)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -22,5 +29,8 @@ PLATFORMS
 
 DEPENDENCIES
   config_env
+  rack-ssl-enforcer
+  rake
+  rbnacl-libsodium
   sinatra
   thin
