@@ -1,6 +1,7 @@
 # Copy this file to [app]/config/config_env.rb
 # Replace :[ENV_NAME] with environment name
+# Replace [*] with key
 
 config_env :[ENV_NAME] do
-
+  set :ACCESS_TOKEN, [Canvas access token]
 end
