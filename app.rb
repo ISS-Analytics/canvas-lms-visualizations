@@ -16,16 +16,24 @@ class CanvasLmsAPI < Sinatra::Base
     set :session_secret, ENV['MSG_KEY']
   end
 
-  CANVAS = 'https://n.acme.instructure.com/api/v1/'
+  # CANVAS = 'https://n.acme.instructure.com/api/v1/'
 
   get '/' do
     'Hello'
   end
 
-  # Get course list
-  get '/course_list/?' do
-    url = CANVAS + 'courses'
-    headers = { authorization: ('Bearer ' + ENV['ACCESS_TOKEN']) }
-    (HTTParty.get url, headers: headers).to_s
+  get '/register/?' do
+
   end
+
+  get '/oauth2callback_gmail/?' do
+    'https://www.googleapis.com/auth/'
+  end
+
+  # Get course list
+  # get '/course_list/?' do
+  #   url = CANVAS + 'courses'
+  #   headers = { authorization: ('Bearer ' + ENV['ACCESS_TOKEN']) }
+  #   (HTTParty.get url, headers: headers).to_s
+  # end
 end

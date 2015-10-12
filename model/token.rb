@@ -5,6 +5,7 @@ class Token < ActiveRecord::Base
   include ModelHelper
 
   validates :email, presence: true, uniqueness: true, format: /@/
+  validates :canvas_url, presence: true
   validates :encrypted_token, presence: true
 
   attr_accessible :email

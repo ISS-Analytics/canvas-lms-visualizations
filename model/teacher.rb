@@ -17,9 +17,9 @@ class Teacher < ActiveRecord::Base
     self.hashed_password = enc_64(digest)
   end
 
-  def self.hash_password(salt, pwd)
-    opslimit = 2**20
-    memlimit = 2**24
-    RbNaCl::PasswordHash.scrypt(pwd, salt, opslimit, memlimit)
-  end
+  # def self.hash_password(salt, pwd)
+  #   opslimit = 2**20
+  #   memlimit = 2**24
+  #   RbNaCl::PasswordHash.scrypt(pwd, salt, opslimit, memlimit)
+  # end
 end
