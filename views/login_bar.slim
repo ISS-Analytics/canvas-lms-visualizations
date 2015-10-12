@@ -1,0 +1,6 @@
+- if @teacher
+    markdown:
+      ### Welcome | [Logout](logout)
+- else
+    markdown:
+      ### [Login with Gmail](#{GOOGLE_API}#{GOOGLE_OAUTH}&redirect_uri=#{request.base_url}/oauth2callback_gmail&scope=email)

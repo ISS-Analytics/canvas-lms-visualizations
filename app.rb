@@ -2,6 +2,8 @@ require 'sinatra'
 require 'config_env'
 require 'rack/ssl-enforcer'
 require 'httparty'
+require 'slim'
+require 'slim/include'
 require_relative './model/teacher'
 require_relative './model/token'
 
@@ -16,18 +18,23 @@ class CanvasLmsAPI < Sinatra::Base
     set :session_secret, ENV['MSG_KEY']
   end
 
-  # CANVAS = 'https://n.acme.instructure.com/api/v1/'
+  GOOGLE_API = 'https://accounts.google.com/o/oauth2/auth'
+  GOOGLE_OAUTH = "?response_type=code&client_id=#{ENV['CLIENT_ID']}"
 
   get '/' do
-    'Hello'
-  end
-
-  get '/register/?' do
-
+    slim :index
   end
 
   get '/oauth2callback_gmail/?' do
-    'https://www.googleapis.com/auth/'
+    result = HTTParty.post(
+      'https://www.googleapis.com/oauth2/v3/token',
+      body: { code: params['code'], client_id: ENV['CLIENT_ID'],
+              client_secret: ENV['CLIENT_SECRET'],
+              grant_type: 'authorization_code',
+              redirect_uri: "#{request.base_url}/oauth2callback_gmail" },
+      headers: { 'Accept' => 'application/json' }
+    )
+    result.to_s
   end
 
   # Get course list
