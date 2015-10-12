@@ -2,6 +2,8 @@ require 'sinatra'
 require 'config_env'
 require 'rack/ssl-enforcer'
 require 'httparty'
+require_relative './model/teacher'
+require_relative './model/token'
 
 configure :development, :test do
   ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
