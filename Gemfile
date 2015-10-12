@@ -12,6 +12,7 @@ gem 'activerecord'
 gem 'sinatra-activerecord'
 gem 'tux'
 gem 'hirb'
+gem 'protected_attributes'
 
 group :development, :test do
   gem 'sqlite3'

@@ -14,18 +14,19 @@
 ActiveRecord::Schema.define(version: 20151012075057) do
 
   create_table "teachers", force: :cascade do |t|
-    t.text     "encrypted_fullname"
-    t.text     "hashed_password"
+    t.text     "username"
     t.text     "email"
+    t.text     "hashed_password"
     t.text     "nonce"
     t.text     "salt"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   create_table "tokens", force: :cascade do |t|
     t.text     "email"
     t.text     "encrypted_token"
+    t.text     "nonce"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
