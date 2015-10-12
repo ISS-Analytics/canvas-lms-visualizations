@@ -13,6 +13,8 @@ gem 'sinatra-activerecord'
 gem 'tux'
 gem 'hirb'
 gem 'protected_attributes'
+gem 'slim'
+gem 'kramdown'
 
 group :development, :test do
   gem 'sqlite3'
