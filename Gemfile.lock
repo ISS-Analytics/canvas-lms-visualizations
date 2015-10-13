@@ -27,12 +27,15 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
     json (1.8.3)
+    jwt (1.5.0)
     kramdown (1.5.0)
     minitest (5.7.0)
     multi_xml (0.5.5)
     protected_attributes (1.0.9)
       activemodel (>= 4.0.1, < 5.0)
     rack (1.6.4)
+    rack-flash3 (1.0.5)
+      rack
     rack-protection (1.5.3)
       rack
     rack-ssl-enforcer (0.2.9)
@@ -85,10 +88,12 @@ DEPENDENCIES
   config_env
   hirb
   httparty
+  jwt
   kramdown
   minitest
   protected_attributes
   rack
+  rack-flash3
   rack-ssl-enforcer
   rack-test
   rake

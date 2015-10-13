@@ -15,6 +15,8 @@ gem 'hirb'
 gem 'protected_attributes'
 gem 'slim'
 gem 'kramdown'
+gem 'jwt'
+gem 'rack-flash3'
 
 group :development, :test do
   gem 'sqlite3'
