@@ -54,4 +54,11 @@ module AppHelper
     payload = decoded_token.first
     Teacher.find_by_email(payload['email'])
   end
+
+  def save_token(canvas_token, canvas_url)
+    token = Token.new(email: @current_teacher.email, canvas_url: canvas_url)
+    token.canvas_token = canvas_token
+    return "Failed to save #{token.canvas_token_display}" unless token.save
+    "#{token.canvas_token_display} saved"
+  end
 end

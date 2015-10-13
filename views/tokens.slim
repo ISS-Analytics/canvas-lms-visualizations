@@ -5,21 +5,20 @@
       th Web Site
     - tokens.each do |token|
       tr
-        td token.token
-        td token.canvas_url
+        td #{token[0]}
+        td #{token[1]}
 
-h3 Add new tokens
+h3 Add new token
 form action='/tokens' method='post'
-  table
+  Table
     tr
-      th Token
-      th Canvas URL
-    - (0..3).each do |x|
-      tr
-        td
-          input type='text' name="token#{x}" size=20
-        td
-          input type='text' name="url#{x}" size=20
+      td
+        | Token: 
+        input type='text' name='token' size=90
+    tr
+      td
+        | Canvas URL: 
+        input type='text' name='url' size=50
     tr
       td
         input type='submit' value='Submit'

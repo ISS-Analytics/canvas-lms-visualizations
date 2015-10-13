@@ -71,11 +71,21 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   get '/tokens/?', auth: [:teacher] do
-    tokens = Token.find_by_email(@current_teacher.email)
-    tokens = tokens.map { |token| [token.token, token.canvas_url] } if tokens
+    tokens = Token.where(email: @current_teacher.email)
+    if tokens
+      tokens = tokens.map do |token|
+        [token.canvas_token_display, token.canvas_url]
+      end
+    end
     slim :tokens, locals: { tokens: tokens }
   end
 
-  post '/tokens', auth: [:teacher] do
+  post '/tokens/?', auth: [:teacher] do
+    result = save_token(params['token'], params['url'])
+    if result.include?('saved')
+      flash[:notice] = "#{result}"
+    else flash[:error] = "#{result}"
+    end
+    redirect '/tokens'
   end
 end
