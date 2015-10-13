@@ -43,7 +43,7 @@ module AppHelper
     if session[:redirect]
       url = session[:redirect]
       session.delete(:redirect)
-    else url = '/welcome'
+    else url = '/tokens'
     end
     redirect url
   end

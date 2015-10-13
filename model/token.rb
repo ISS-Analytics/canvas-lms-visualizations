@@ -15,6 +15,6 @@ class Token < ActiveRecord::Base
   end
 
   def token
-    dec.decrypt(dec_64(nonce), dec_64(encrypted_token))
+    dec.decrypt(dec_64(nonce), dec_64(encrypted_token))[0..4]
   end
 end

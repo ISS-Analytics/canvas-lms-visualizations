@@ -64,13 +64,18 @@ class CanvasLmsAPI < Sinatra::Base
     find_teacher(email) ? login_teacher(email) : register_teacher(email)
   end
 
-  get '/logout' do
+  get '/logout/?' do
     session[:auth_token] = nil
     flash[:notice] = 'Logged out'
     redirect '/'
   end
 
-  get '/welcome', auth: [:teacher] do
-    'Hello!!!!!!!!'
+  get '/tokens/?', auth: [:teacher] do
+    tokens = Token.find_by_email(@current_teacher.email)
+    tokens = tokens.map { |token| [token.token, token.canvas_url] } if tokens
+    slim :tokens, locals: { tokens: tokens }
+  end
+
+  post '/tokens', auth: [:teacher] do
   end
 end

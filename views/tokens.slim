@@ -1,0 +1,25 @@
+- if tokens
+  table cellpadding='10'
+    tr
+      th List of current tokens (obfuscated)
+      th Web Site
+    - tokens.each do |token|
+      tr
+        td token.token
+        td token.canvas_url
+
+h3 Add new tokens
+form action='/tokens' method='post'
+  table
+    tr
+      th Token
+      th Canvas URL
+    - (0..3).each do |x|
+      tr
+        td
+          input type='text' name="token#{x}" size=20
+        td
+          input type='text' name="url#{x}" size=20
+    tr
+      td
+        input type='submit' value='Submit'
