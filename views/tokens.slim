@@ -5,7 +5,8 @@
       th Web Site
     - tokens.each do |token|
       tr
-        td #{token[0]}
+        td 
+          a href="tokens/#{token[0]}" #{token[0]}
         td #{token[1]}
 
 h3 Add new token

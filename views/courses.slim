@@ -1,0 +1,8 @@
+h3 List of Classes
+table cellpadding='10'
+  tr
+    th Course Code - Course Name
+  - courses.each do |course|
+    tr
+      td #{course['course_code']} - #{course['name']}
+| #{courses[0]}

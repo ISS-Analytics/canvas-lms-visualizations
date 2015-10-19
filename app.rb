@@ -71,12 +71,7 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   get '/tokens/?', auth: [:teacher] do
-    tokens = Token.where(email: @current_teacher.email)
-    if tokens
-      tokens = tokens.map do |token|
-        [token.canvas_token_display, token.canvas_url]
-      end
-    end
+    tokens = list_tokens
     slim :tokens, locals: { tokens: tokens }
   end
 
@@ -88,4 +83,18 @@ class CanvasLmsAPI < Sinatra::Base
     end
     redirect '/tokens'
   end
+
+  get '/tokens/:canvas_token_display/?', auth: [:teacher] do
+    token = cross_tokens(params['canvas_token_display'])
+    courses = courses(token.canvas_api, token.canvas_token)
+    courses = JSON.parse(courses.to_json)
+    slim :courses, locals: { courses: courses }
+  end
+
+  # get '/tokens/:canvas_token_display/:course_id/?', auth: [:teacher] do
+  #   cross_tokens(params['canvas_token_display'])
+  #   # courses = courses(token.canvas_api, token.canvas_token)
+  #   # courses = JSON.parse(courses.to_json)
+  #   slim :course
+  # end
 end

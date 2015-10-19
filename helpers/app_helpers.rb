@@ -55,10 +55,36 @@ module AppHelper
     Teacher.find_by_email(payload['email'])
   end
 
+  def list_tokens
+    tokens = Token.where(email: @current_teacher.email)
+    return tokens unless tokens
+    tokens.map { |token| [token.canvas_token_display, token.canvas_url] }
+  end
+
   def save_token(canvas_token, canvas_url)
     token = Token.new(email: @current_teacher.email, canvas_url: canvas_url)
     token.canvas_token = canvas_token
     return "Failed to save #{token.canvas_token_display}" unless token.save
     "#{token.canvas_token_display} saved"
+  end
+
+  def permitted_tokens(canvas_token_display)
+    tokens = Token.where(email: @current_teacher.email)
+    tokens.select do |token|
+      token.canvas_token_display.include? canvas_token_display
+    end[0]
+  end
+
+  def cross_tokens(canvas_token_display)
+    permitted = permitted_tokens(canvas_token_display)
+    return permitted if permitted
+    flash[:error] = 'You do not own this token!' # Overly risky handling
+    redirect '/tokens'
+  end
+
+  def courses(canvas_api, canvas_token)
+    url = canvas_api + 'courses'
+    headers = { 'authorization' => ('Bearer ' + canvas_token) }
+    HTTParty.get url, headers: headers
   end
 end

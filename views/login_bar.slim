@@ -1,6 +1,6 @@
 - if @current_teacher
     markdown:
-      ### Welcome #{@current_teacher.email} | [Update canvas tokens](/tokens) | [Logout](/logout)
+      ### Welcome #{@current_teacher.email} | [Add/View/Update Courses](/tokens) | [Logout](/logout)
 - else
     markdown:
       ### [Login with Gmail](#{GOOGLE_OAUTH}#{GOOGLE_PARAMS}&redirect_uri=#{request.base_url}/oauth2callback_gmail&scope=email)

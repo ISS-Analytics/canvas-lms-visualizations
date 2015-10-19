@@ -21,4 +21,8 @@ class Token < ActiveRecord::Base
   def canvas_token_display
     canvas_token[0..6] + '*' * 7
   end
+
+  def canvas_api
+    canvas_url + 'api/v1/'
+  end
 end
