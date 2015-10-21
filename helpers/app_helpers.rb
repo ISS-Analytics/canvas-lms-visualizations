@@ -82,9 +82,23 @@ module AppHelper
     redirect '/tokens'
   end
 
+  def api_party(url, canvas_token)
+    headers = { 'authorization' => ('Bearer ' + canvas_token) }
+    (HTTParty.get url, headers: headers).to_json
+  end
+
   def courses(canvas_api, canvas_token)
     url = canvas_api + 'courses'
-    headers = { 'authorization' => ('Bearer ' + canvas_token) }
-    HTTParty.get url, headers: headers
+    api_party(url, canvas_token)
+  end
+
+  def course_analytics(canvas_api, canvas_token, course_id, data)
+    url = canvas_api + 'courses/' + course_id + "/analytics/#{data}"
+    api_party(url, canvas_token)
+  end
+
+  def course_info(canvas_api, canvas_token, course_id, data)
+    url = canvas_api + 'courses/' + course_id + "/#{data}"
+    api_party(url, canvas_token)
   end
 end

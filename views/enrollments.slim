@@ -1,0 +1,12 @@
+h3 Student List
+table cellpadding='10'
+  tr
+    th Student Name
+    th Email
+    th Role (Student/Observer/Ta)
+  - data.each do |user|
+    - if user['type'] == ('StudentEnrollment' || 'TaEnrollment' || 'ObserverEnrollment')
+      tr  
+        td #{user['user']['sortable_name']}
+        td #{user['user']['login_id']}
+        td #{user['type'].chomp('Enrollment')}

@@ -53,10 +53,6 @@ class CanvasLmsAPI < Sinatra::Base
     slim :index
   end
 
-  get '/login/?' do
-    login_gmail if params['site'] == 'gmail'
-  end
-
   get '/oauth2callback_gmail/?' do
     callback_json = callback_gmail(params).to_json
     access_token = JSON.parse(callback_json)['access_token']
@@ -87,14 +83,15 @@ class CanvasLmsAPI < Sinatra::Base
   get '/tokens/:canvas_token_display/?', auth: [:teacher] do
     token = cross_tokens(params['canvas_token_display'])
     courses = courses(token.canvas_api, token.canvas_token)
-    courses = JSON.parse(courses.to_json)
-    slim :courses, locals: { courses: courses }
+    slim :courses, locals: { courses: JSON.parse(courses),
+                             token: params['canvas_token_display'] }
   end
 
-  # get '/tokens/:canvas_token_display/:course_id/?', auth: [:teacher] do
-  #   cross_tokens(params['canvas_token_display'])
-  #   # courses = courses(token.canvas_api, token.canvas_token)
-  #   # courses = JSON.parse(courses.to_json)
-  #   slim :course
-  # end
+  get '/tokens/:canvas_token_display/:course_id/:data/?', auth: [:teacher] do
+    token = cross_tokens(params['canvas_token_display'])
+    arr = [token.canvas_api, token.canvas_token, params['course_id'],
+           params['data']]
+    data = params['no_analytics'] ? course_info(*arr) : course_analytics(*arr)
+    slim :"#{params['data']}", locals: { data: JSON.parse(data) }
+  end
 end

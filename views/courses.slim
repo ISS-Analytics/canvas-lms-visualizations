@@ -1,7 +1,15 @@
 h3 List of Classes
 table cellpadding='10'
   tr
-    th Course Code - Course Name
+    th Course Code -- Course Name
   - courses.each do |course|
     tr
-      td #{course['course_code']} - #{course['name']}
+      - link = "/tokens/#{token}/#{course['id']}/"
+      td
+        markdown:
+          [#{course['course_code']} -- #{course['name']}](# 'Multiple visualizations')
+      td
+        markdown:
+          | [Student Summaries](#{link}student_summaries) | [Course Assignments](#{link}assignments)
+          | [Course Participation](#{link}activity) | [Engagement](#{link}engagement)
+          | [Quizzes](#{link}quizzes?no_analytics=true) | [List of Students](#{link}enrollments?no_analytics=true 'For individual student analytics')
