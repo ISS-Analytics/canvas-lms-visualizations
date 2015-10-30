@@ -17,6 +17,7 @@ gem 'slim'
 gem 'kramdown'
 gem 'jwt'
 gem 'rack-flash3'
+gem 'chartkick'
 
 group :development, :test do
   gem 'sqlite3'
