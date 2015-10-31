@@ -5,6 +5,7 @@ require 'httparty'
 require 'slim'
 require 'slim/include'
 require 'rack-flash'
+require 'chartkick'
 require_relative './model/teacher'
 require_relative './model/token'
 require_relative './helpers/app_helpers'
@@ -92,6 +93,7 @@ class CanvasLmsAPI < Sinatra::Base
     arr = [token.canvas_api, token.canvas_token, params['course_id'],
            params['data']]
     data = params['no_analytics'] ? course_info(*arr) : course_analytics(*arr)
+    data = all_discussion(*arr) if params['data'] == 'discussion_topics'
     slim :"#{params['data']}", locals: { data: JSON.parse(data) }
   end
 end

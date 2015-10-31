@@ -3,13 +3,14 @@ table cellpadding='10'
   tr
     th Course Code -- Course Name
   - courses.each do |course|
-    tr
-      - link = "/tokens/#{token}/#{course['id']}/"
-      td
-        markdown:
-          [#{course['course_code']} -- #{course['name']}](# 'Multiple visualizations')
-      td
-        markdown:
-          | [Student Summaries](#{link}student_summaries) | [Course Assignments](#{link}assignments)
-          | [Course Participation](#{link}activity) | [Engagement](#{link}engagement)
-          | [Quizzes](#{link}quizzes?no_analytics=true) | [List of Students](#{link}enrollments?no_analytics=true 'For individual student analytics')
+    - unless course['workflow_state'] == 'unpublished'
+      tr
+        - link = "/tokens/#{token}/#{course['id']}/"
+        td
+          markdown:
+            [#{course['course_code']} -- #{course['name']}](# 'Multiple visualizations')
+        td
+          markdown:
+            | [Student Summaries](#{link}student_summaries) | [Course Assignments](#{link}assignments)
+            | [Course Participation](#{link}activity) | [Discussions](#{link}discussion_topics?no_analytics=true)
+            | [Quizzes](#{link}quizzes?no_analytics=true) | [List of Students](#{link}enrollments?no_analytics=true 'For individual student analytics')

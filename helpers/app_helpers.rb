@@ -101,4 +101,13 @@ module AppHelper
     url = canvas_api + 'courses/' + course_id + "/#{data}"
     api_party(url, canvas_token)
   end
+
+  def all_discussion(canvas_api, canvas_token, course_id, data)
+    discussions = course_info(canvas_api, canvas_token, course_id, data)
+    discussions = JSON.parse(discussions)
+    discussions.map do |discussion|
+      course_info(canvas_api, canvas_token, course_id,
+                  "/#{data}/#{discussion['id']}/view")
+    end.to_json
+  end
 end

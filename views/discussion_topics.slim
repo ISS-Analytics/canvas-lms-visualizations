@@ -1,0 +1,20 @@
+/ | #{data}
+h3 Discussion Data
+- unless data.all? { |dat| dat.nil? || dat.empty? || dat == 'null' }
+  - comments = data.map { |dat| JSON.parse(dat)['view'] unless dat == 'null' }
+  - discussions = Hash.new(0)
+  - comments.each do |comment|
+    - unless comment.empty?
+      - comment.each do |comms| \
+          discussions[comms['created_at']] += 1 unless comms['deleted'] == true; \
+          unless comms['replies'].nil?; \
+            comms['replies'].each do |reply| \
+              discussions[reply['created_at']] += 1 unless reply['deleted'] == true; \
+            end \
+          end \
+        end
+  == line_chart discussions
+  | #{discussions}
+  | #{discussions.length}
+- else
+  br No discussions available

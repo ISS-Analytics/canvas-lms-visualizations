@@ -1,1 +1,9 @@
-| #{data}
+h2 Course Participation
+- views = {}
+- data.each { |activity| views[activity['date']] = activity['views'] }
+h3 Views
+== line_chart views
+h3 Participations
+- participations = {}
+- data.each { |activity| participations[activity['date']] = activity['participations'] }
+== line_chart participations
