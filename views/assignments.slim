@@ -21,9 +21,13 @@ h3 Tardiness
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
 == area_chart tard
 == line_chart tard
+| #{tardiness}
 h3 Median Scores as percentage of Possible Points
 - scores = {}
 - data.map { |assignment| scores[assignment['due_at']] = [assignment['median'], assignment['points_possible']] }
 - scores.delete_if { |key, value| key.nil? || value[0].nil? || value[1].nil? }
 - scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
-== line_chart scores, min: 0, max: 100
+- MIN_PERCENTAGE = 0
+- MAX_PERCENTAGE = 100
+== line_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
+| #{scores}
