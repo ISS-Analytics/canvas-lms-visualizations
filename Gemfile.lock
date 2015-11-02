@@ -15,6 +15,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     arel (6.0.0)
+    awesome_print (1.6.1)
     bond (0.5.1)
     builder (3.2.2)
     chartkick (1.4.1)
@@ -88,6 +89,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  awesome_print
   chartkick
   config_env
   groupdate

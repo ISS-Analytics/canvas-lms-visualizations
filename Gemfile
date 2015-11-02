@@ -19,6 +19,7 @@ gem 'jwt'
 gem 'rack-flash3'
 gem 'chartkick'
 gem 'groupdate'
+gem 'awesome_print'
 
 group :development, :test do
   gem 'sqlite3'

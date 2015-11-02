@@ -4,11 +4,10 @@ h2 Assignments
 - tardiness[:late] = {}
 - tardiness[:on_time] = {}
 - data.each do |assignment| \
-    tardiness[:missing][assignment['due_at']] = [assignment['tardiness_breakdown']['missing'], assignment['tardiness_breakdown']['total']]; \
-    tardiness[:late][assignment['due_at']] = [assignment['tardiness_breakdown']['late'], assignment['tardiness_breakdown']['total']]; \
-    tardiness[:on_time][assignment['due_at']] = [assignment['tardiness_breakdown']['on_time'], assignment['tardiness_breakdown']['total']]; \
+    tardiness[:missing][assignment['title']] = [assignment['tardiness_breakdown']['missing'], assignment['tardiness_breakdown']['total']]; \
+    tardiness[:late][assignment['title']] = [assignment['tardiness_breakdown']['late'], assignment['tardiness_breakdown']['total']]; \
+    tardiness[:on_time][assignment['title']] = [assignment['tardiness_breakdown']['on_time'], assignment['tardiness_breakdown']['total']]; \
   end
-
 - tardiness[:missing].delete_if { |key, _| key.nil? }
 - tardiness[:late].delete_if { |key, _| key.nil? }
 - tardiness[:on_time].delete_if { |key, _| key.nil? }
@@ -19,15 +18,16 @@ h3 Tardiness
 - tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
           { name: 'Late Submissions', data: tardiness[:late] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
-== area_chart tard
-== line_chart tard
-| #{tardiness}
+/ == area_chart tard, discrete: true
+== column_chart tard, stacked: true
 h3 Median Scores as percentage of Possible Points
 - scores = {}
-- data.map { |assignment| scores[assignment['due_at']] = [assignment['median'], assignment['points_possible']] }
+- data.map { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
 - scores.delete_if { |key, value| key.nil? || value[0].nil? || value[1].nil? }
 - scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
 - MIN_PERCENTAGE = 0
 - MAX_PERCENTAGE = 100
-== line_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
-| #{scores}
+== column_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
+- ap data[0]
+- ap tardiness
+- ap scores

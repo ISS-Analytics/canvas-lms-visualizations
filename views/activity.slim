@@ -2,11 +2,11 @@ h2 Course Participation
 - views = {}
 - data.each { |activity| views[activity['date']] = activity['views'] }
 h3 Views
-== line_chart views
-| #{views}
+== column_chart views
 h3 Participations
-- participations = {}
+- participations = Hash.new(0)
 - data.each { |activity| participations[activity['date']] = activity['participations'] }
-== line_chart participations
-/ == line_chart Hash[participations.group_by_day { |u| u[0] }.map { |k, v| v.size == 0 ? [k, v.size] : [k, v[0][1]] }]
-| #{participations}
+== column_chart participations
+/ unless activity['date'].include? '2015' - ap data[0]
+- ap views
+- ap participations
