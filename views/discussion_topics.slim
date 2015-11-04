@@ -1,3 +1,4 @@
+include scripts
 - DATE = 0..9 # Use 9 to group by date, -1 to leave times in there
 - unless data.all? { |dat| dat.nil? || dat.empty? || dat == 'null' }
   - comments = data.map { |dat| JSON.parse(dat)['view'] unless dat == 'null' }
@@ -23,6 +24,6 @@
   h3 Dicussions by Participant
   == column_chart discussions_id
   - ap discussions_id
+  - ap JSON.parse(data[0])
 - else
   br No discussions available
-- ap JSON.parse(data[0])

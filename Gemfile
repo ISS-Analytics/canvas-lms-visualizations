@@ -20,6 +20,7 @@ gem 'rack-flash3'
 gem 'chartkick'
 gem 'groupdate'
 gem 'awesome_print'
+gem 'concurrent-ruby'
 
 group :development, :test do
   gem 'sqlite3'

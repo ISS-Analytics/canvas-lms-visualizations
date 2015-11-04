@@ -19,6 +19,7 @@ GEM
     bond (0.5.1)
     builder (3.2.2)
     chartkick (1.4.1)
+    concurrent-ruby (0.9.1)
     config_env (0.1.0)
     daemons (1.2.3)
     eventmachine (1.0.8)
@@ -91,6 +92,7 @@ DEPENDENCIES
   activerecord
   awesome_print
   chartkick
+  concurrent-ruby
   config_env
   groupdate
   hirb

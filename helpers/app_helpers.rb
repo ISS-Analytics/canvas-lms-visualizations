@@ -106,8 +106,9 @@ module AppHelper
     discussions = course_info(canvas_api, canvas_token, course_id, data)
     discussions = JSON.parse(discussions)
     discussions.map do |discussion|
-      course_info(canvas_api, canvas_token, course_id,
-                  "/#{data}/#{discussion['id']}/view")
-    end.to_json
+      Concurrent::Future.new do
+        course_info(canvas_api, canvas_token, course_id,
+                    "/#{data}/#{discussion['id']}/view")
+      end; end.map(&:execute).map(&:value).to_json
   end
 end
