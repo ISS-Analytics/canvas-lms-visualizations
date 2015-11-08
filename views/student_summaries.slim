@@ -1,2 +1,27 @@
 include scripts
 - ap data
+- tardiness = {}
+- page_views = {}
+- participations = {}
+- tardiness[:missing] = {}
+- tardiness[:late] = {}
+- tardiness[:on_time] = {}
+- tardiness[:floating] = {}
+- data.each do |user| \
+    tardiness[:missing]["user_#{user['id']}"] = user['tardiness_breakdown']['missing']; \
+    tardiness[:late]["user_#{user['id']}"] = user['tardiness_breakdown']['late']; \
+    tardiness[:on_time]["user_#{user['id']}"] = user['tardiness_breakdown']['on_time']; \
+    tardiness[:floating]["user_#{user['id']}"] = user['tardiness_breakdown']['floating']; \
+    page_views["user_#{user['id']}"] = user['page_views']; \
+    participations["user_#{user['id']}"] = user['participations']; \
+  end
+h3 Student Tardiness
+- tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
+          { name: 'Late Submissions', data: tardiness[:late] }, \
+          { name: 'Floating', data: tardiness[:floating] }, \
+          { name: 'On Time Submissions', data: tardiness[:on_time] }]
+== bar_chart tard, stacked: true
+h3 Student Page Views Count
+== bar_chart page_views
+h3 Student Participation Count
+== bar_chart participations
