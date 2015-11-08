@@ -2,8 +2,8 @@ require 'jwt'
 require 'json'
 require_relative './model_helpers'
 
-# Helper module for app
-module AppHelper
+# Helper module for app, handling login
+module AppLoginHelper
   include ModelHelper
 
   GOOGLE_API = 'https://www.googleapis.com/oauth2/'
@@ -80,35 +80,5 @@ module AppHelper
     return permitted if permitted
     flash[:error] = 'You do not own this token!' # Overly risky handling
     redirect '/tokens'
-  end
-
-  def api_party(url, canvas_token)
-    headers = { 'authorization' => ('Bearer ' + canvas_token) }
-    (HTTParty.get url, headers: headers).to_json
-  end
-
-  def courses(canvas_api, canvas_token)
-    url = canvas_api + 'courses'
-    api_party(url, canvas_token)
-  end
-
-  def course_analytics(canvas_api, canvas_token, course_id, data)
-    url = canvas_api + 'courses/' + course_id + "/analytics/#{data}"
-    api_party(url, canvas_token)
-  end
-
-  def course_info(canvas_api, canvas_token, course_id, data)
-    url = canvas_api + 'courses/' + course_id + "/#{data}"
-    api_party(url, canvas_token)
-  end
-
-  def all_discussion(canvas_api, canvas_token, course_id, data)
-    discussions = course_info(canvas_api, canvas_token, course_id, data)
-    discussions = JSON.parse(discussions)
-    discussions.map do |discussion|
-      Concurrent::Future.new do
-        course_info(canvas_api, canvas_token, course_id,
-                    "/#{data}/#{discussion['id']}/view")
-      end; end.map(&:execute).map(&:value).to_json
   end
 end

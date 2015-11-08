@@ -11,7 +11,8 @@ require 'ap'
 require 'concurrent'
 require_relative './model/teacher'
 require_relative './model/token'
-require_relative './helpers/app_helpers'
+require_relative './helpers/app_login_helpers'
+require_relative './helpers/app_api_helpers'
 
 configure :development, :test do
   require 'hirb'
@@ -21,7 +22,7 @@ end
 
 # Visualizations for Canvas LMS Classes
 class CanvasLmsAPI < Sinatra::Base
-  include AppHelper
+  include AppLoginHelper, AppAPIHelper
   enable :logging
 
   GOOGLE_OAUTH = 'https://accounts.google.com/o/oauth2/auth'
@@ -95,8 +96,7 @@ class CanvasLmsAPI < Sinatra::Base
     token = cross_tokens(params['canvas_token_display'])
     arr = [token.canvas_api, token.canvas_token, params['course_id'],
            params['data']]
-    result = params['no_analytics'] ? course_info(*arr) : course_analytics(*arr)
-    result = all_discussion(*arr) if params['data'] == 'discussion_topics'
+    result = result(params, arr)
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }
   end
