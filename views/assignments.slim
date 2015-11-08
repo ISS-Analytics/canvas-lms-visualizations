@@ -12,9 +12,9 @@ h2 Assignments
 - tardiness[:missing].delete_if { |key, _| key.nil? }
 - tardiness[:late].delete_if { |key, _| key.nil? }
 - tardiness[:on_time].delete_if { |key, _| key.nil? }
-- tardiness[:missing] = Hash[tardiness[:missing].map { |k, v| [k, v[0] * v[1]] } ]
-- tardiness[:late] = Hash[tardiness[:late].map { |k, v| [k, v[0] * v[1]] } ]
-- tardiness[:on_time] = Hash[tardiness[:on_time].map { |k, v| [k, v[0] * v[1]] } ]
+- tardiness[:missing] = Hash[tardiness[:missing].map { |k, v| [k, v[0] * v[1]] }]
+- tardiness[:late] = Hash[tardiness[:late].map { |k, v| [k, v[0] * v[1]] }]
+- tardiness[:on_time] = Hash[tardiness[:on_time].map { |k, v| [k, v[0] * v[1]] }]
 h3 Tardiness
 - tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
           { name: 'Late Submissions', data: tardiness[:late] }, \

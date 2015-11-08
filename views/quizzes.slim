@@ -1,2 +1,53 @@
 include scripts
-- ap data[0]
+- ap data[1]
+- if data.empty?
+  h3 No quiz found
+- else
+  - scores = {}
+  - scores[:high] = {}
+  - scores[:low] = {}
+  - scores[:average] = {}
+  - scores[:stdev] = {}
+  - data.each do |quiz| \
+      quiz.each do |name, statistics| \
+        statistics = JSON.parse(statistics)['quiz_statistics'][0]; \
+        scores[:high][name] = [statistics['submission_statistics']['score_high'], statistics['points_possible']]; \
+        scores[:low][name] = [statistics['submission_statistics']['score_low'], statistics['points_possible']]; \
+        scores[:average][name] = [statistics['submission_statistics']['score_average'], statistics['points_possible']]; \
+        scores[:stdev][name] = statistics['submission_statistics']['score_stdev']; \
+      end \
+    end
+  - scores[:high].delete_if { |_, value| value[0].nil? }
+  - scores[:average].delete_if { |_, value| value[0].nil? }
+  - scores[:low].delete_if { |_, value| value[0].nil? }
+  - scores[:high] = Hash[scores[:high].map { |k, v| [k, v[0] / v[1] * 100] }]
+  - scores[:average] = Hash[scores[:average].map { |k, v| [k, v[0] / v[1] * 100] }]
+  - scores[:low] = Hash[scores[:low].map { |k, v| [k, v[0] / v[1] * 100] }]
+  - ap scores
+  h3 Quiz Statistics (Scores as % of Total)
+  - scores = [{ name: 'Lowest Score', data: scores[:low] }, \
+              { name: 'Average Score', data: scores[:average] }, \
+              { name: 'Highest Score', data: scores[:high] }]
+  == column_chart scores, discrete: true
+  / - scoreD = {}
+  / - scoreD[:high] = {}
+  / - scoreD[:low] = {}
+  / - scoreD[:average] = {}
+  / - scoreD[:total] = {}
+  / - scoreD[:stdev] = {}
+  / - data.each do |quiz| \
+  /     quiz.each do |name, statistics| \
+  /       statistics = JSON.parse(statistics)['quiz_statistics'][0]; \
+  /       scoreD[:high][name] = statistics['submission_statistics']['score_high']; \
+  /       scoreD[:low][name] = statistics['submission_statistics']['score_low']; \
+  /       scoreD[:average][name] = statistics['submission_statistics']['score_average']; \
+  /       scoreD[:total][name] = statistics['points_possible']; \
+  /       scoreD[:stdev][name] = statistics['submission_statistics']['score_stdev']; \
+  /     end \
+  /   end
+  / h3 Quiz Statistics (Raw Values)
+  / - scoreD = [{ name: 'Lowest Score', data: scoreD[:low] }, \
+  /             { name: 'Average Score', data: scoreD[:average] }, \
+  /             { name: 'Highest Score', data: scoreD[:high] }, \
+  /             { name: 'Maximum Possible', data: scoreD[:total] }]
+  / == column_chart scoreD, discrete: true

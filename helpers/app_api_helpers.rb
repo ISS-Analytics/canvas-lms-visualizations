@@ -3,9 +3,11 @@ require 'json'
 
 # Helper module for app, handling API
 module AppAPIHelper
-  def result(params, arr)
+  def result_route(params, arr)
     if params['data'] == 'discussion_topics'
       all_discussion(*arr)
+    elsif params['data'] == 'quizzes'
+      all_quiz(*arr)
     elsif params['data'] == 'users'
       user_by_user(*arr)
     elsif params['no_analytics']
@@ -41,6 +43,16 @@ module AppAPIHelper
       Concurrent::Future.new do
         course_info(canvas_api, canvas_token, course_id,
                     "/#{data}/#{discussion['id']}/view")
+      end; end.map(&:execute).map(&:value).to_json
+  end
+
+  def all_quiz(canvas_api, canvas_token, course_id, data)
+    quizzes = course_info(canvas_api, canvas_token, course_id, data)
+    quizzes = JSON.parse(quizzes)
+    quizzes.map do |quiz|
+      Concurrent::Future.new do
+        { quiz['title'] => course_info(canvas_api, canvas_token, course_id,
+                                       "/#{data}/#{quiz['id']}/statistics") }
       end; end.map(&:execute).map(&:value).to_json
   end
 

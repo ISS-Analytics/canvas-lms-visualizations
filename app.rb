@@ -96,7 +96,7 @@ class CanvasLmsAPI < Sinatra::Base
     token = cross_tokens(params['canvas_token_display'])
     arr = [token.canvas_api, token.canvas_token, params['course_id'],
            params['data']]
-    result = result(params, arr)
+    result = result_route(params, arr)
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }
   end

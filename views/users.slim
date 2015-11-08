@@ -1,2 +1,10 @@
 include scripts
 - ap data
+/ Not sure what's going on here as no data points
+- data.each do |user| \
+    user.each do |_k, v| \
+      JSON.parse(v).each do |key, value| \
+        column_chart ({ key => value }); \
+      end \
+    end \
+  end
