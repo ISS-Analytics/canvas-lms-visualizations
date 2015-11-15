@@ -15,8 +15,7 @@ module AppLoginHelper
               client_secret: ENV['CLIENT_SECRET'],
               grant_type: 'authorization_code',
               redirect_uri: "#{request.base_url}/oauth2callback_gmail" },
-      headers: { 'Accept' => 'application/json' }
-    )
+      headers: { 'Accept' => 'application/json' })
   end
 
   def teacher_email(access_token)
@@ -44,11 +43,6 @@ module AppLoginHelper
     payload = { email: email }
     token = JWT.encode payload, ENV['MSG_KEY'], 'HS256'
     session[:auth_token] = token
-    # if session[:redirect]
-    #   url = session[:redirect]
-    #   session.delete(:redirect)
-    # else url = '/welcome'
-    # end
     redirect '/welcome'
   end
 
@@ -68,8 +62,7 @@ module AppLoginHelper
   def retrieve(password)
     teacher = Teacher.authenticate!(@current_teacher.email, password)
     if teacher
-      payload = session_password(password, teacher.token_salt)
-      session[:unleash_token] = payload
+      session[:unleash_token] = session_password(password, teacher.token_salt)
       redirect '/tokens'
     else
       flash[:error] = 'Wrong Password'
