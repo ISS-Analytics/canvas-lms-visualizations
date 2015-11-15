@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 20151012075057) do
     t.text     "email"
     t.text     "hashed_password"
     t.text     "salt"
+    t.text     "token_salt"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
@@ -25,7 +26,7 @@ ActiveRecord::Schema.define(version: 20151012075057) do
     t.text     "email"
     t.text     "canvas_url"
     t.text     "encrypted_token"
-    t.text     "nonce"
+    t.text     "encrypted_nonce"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end

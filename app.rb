@@ -42,9 +42,12 @@ class CanvasLmsAPI < Sinatra::Base
     def auth(*types)
       condition do
         if (types.include? :teacher) && !@current_teacher
-          session[:redirect] = request.env['REQUEST_URI']
+          # session[:redirect] = request.env['REQUEST_URI']
           flash[:error] = 'You must be logged in to view that page'
           redirect '/'
+        elsif (types.include? :token_set) && !@token_set
+          flash[:error] = 'You must enter a password to view that page'
+          redirect '/welcome'
         end
       end
     end
@@ -52,6 +55,7 @@ class CanvasLmsAPI < Sinatra::Base
 
   before do
     @current_teacher = find_user_by_token(session[:auth_token])
+    @token_set = avail_tokens_for_user(session[:unleash_token])
   end
 
   get '/' do
@@ -67,16 +71,34 @@ class CanvasLmsAPI < Sinatra::Base
 
   get '/logout/?' do
     session[:auth_token] = nil
+    session[:unleash_token] = nil
     flash[:notice] = 'Logged out'
     redirect '/'
   end
 
-  get '/tokens/?', auth: [:teacher] do
+  get '/welcome/?', auth: [:teacher] do
+    slim :welcome
+  end
+
+  post '/retrieve', auth: [:teacher] do
+    retrieve(params['password'])
+  end
+
+  post '/new_teacher', auth: [:teacher] do
+    if params['password'] == params['password_confirm']
+      create_password(params['password'])
+    else
+      flash[:error] = 'Please write the same password twice'
+      redirect '/welcome'
+    end
+  end
+
+  get '/tokens/?', auth: [:teacher, :token_set] do
     tokens = list_tokens
     slim :tokens, locals: { tokens: tokens }
   end
 
-  post '/tokens/?', auth: [:teacher] do
+  post '/tokens/?', auth: [:teacher, :token_set] do
     result = save_token(params['token'], params['url'])
     if result.include?('saved')
       flash[:notice] = "#{result}"
@@ -85,17 +107,18 @@ class CanvasLmsAPI < Sinatra::Base
     redirect '/tokens'
   end
 
-  get '/tokens/:canvas_token_display/?', auth: [:teacher] do
+  get '/tokens/:canvas_token_display/?', auth: [:teacher, :token_set] do
     token = cross_tokens(params['canvas_token_display'])
-    courses = courses(token.canvas_api, token.canvas_token)
+    courses = courses(token.canvas_api, token.canvas_token(@token_set))
     slim :courses, locals: { courses: JSON.parse(courses),
                              token: params['canvas_token_display'] }
   end
 
-  get '/tokens/:canvas_token_display/:course_id/:data/?', auth: [:teacher] do
+  get '/tokens/:canvas_token_display/:course_id/:data/?',
+      auth: [:teacher, :token_set] do
     token = cross_tokens(params['canvas_token_display'])
-    arr = [token.canvas_api, token.canvas_token, params['course_id'],
-           params['data']]
+    arr = [token.canvas_api, token.canvas_token(@token_set),
+           params['course_id'], params['data']]
     result = result_route(params, arr)
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }

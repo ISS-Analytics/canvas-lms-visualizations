@@ -2,7 +2,7 @@
 class CreateTeachers < ActiveRecord::Migration
   def change
     create_table :teachers do |teacher|
-      teacher.text :email, :hashed_password, :salt
+      teacher.text :email, :hashed_password, :salt, :token_salt
       teacher.timestamps null: false
     end
   end

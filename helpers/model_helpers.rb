@@ -8,7 +8,7 @@ require_relative '../environments'
 # Helper module for models
 module ModelHelper
   def key
-    Base64.urlsafe_decode64(ENV['DB_KEY'])
+    dec_64(ENV['DB_KEY'])
   end
 
   def enc_64(value)
@@ -19,13 +19,14 @@ module ModelHelper
     Base64.urlsafe_decode64(value)
   end
 
-  def dec
+  def box
     RbNaCl::SecretBox.new(key)
   end
 
-  def enc
-    @nonce = enc_64(RbNaCl::Random.random_bytes(dec.nonce_bytes)) unless @nonce
-    self.nonce = @nonce
-    dec
-  end
+  # def enc
+  #   value = enc_64(RbNaCl::Random.random_bytes(dec.nonce_bytes))
+  #   @nonce ||= nonce(special_key, value)
+  #   self.nonce = @nonce
+  #   dec
+  # end
 end

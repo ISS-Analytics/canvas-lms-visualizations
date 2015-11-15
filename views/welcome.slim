@@ -1,0 +1,49 @@
+h3 Please enter your password.
+form action='/retrieve' method='post'
+  Table
+    th colspan='2' align='left' Returning User
+    tr
+      td
+        | Password: 
+      td
+        input type='password' name='password' size=50
+    tr
+      td colspan='2'
+        input type='submit' value='Retrieve tokens'
+br
+form action='/new_teacher' method='post'
+  Table
+    th colspan='2' align='left' First Time User or Forgotten Password
+    tr 
+      td colspan='2' If you've forgotten your password, you'll need to reenter your tokens; current tokens will be deleted.
+    tr
+      td
+        | Password: 
+      td
+        input type='password' name='password' size=50
+    tr
+      td
+        | Confirm Password: 
+      td 
+        input type='password' name='password_confirm' size=50
+    tr
+      td colspan='2'
+        input type='submit' value='Create First Time Password'
+
+/ br
+/ form action='/dump_tokens' method='post'
+/   Table
+/     th colspan='2' align='left' Forgotten Password? Change Password, Old Tokens will be deleted.
+/     tr
+/       td
+/         | Password: 
+/       td
+/         input type='password' name='password' size=50
+/     tr
+/       td
+/         | Confirm Password: 
+/       td 
+/         input type='password' name='password_confirm' size=50
+/     tr
+/       td colspan='2'
+/         input type='submit' value='Create New Password, Dump tokens'

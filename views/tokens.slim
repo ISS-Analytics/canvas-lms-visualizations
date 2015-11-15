@@ -3,11 +3,14 @@
     tr
       th List of current tokens (obfuscated)
       th Web Site
+      th Special Activity
     - tokens.each do |token|
       tr
         td 
           a href="tokens/#{token[0]}" title='To access analytics' #{token[0]}
         td #{token[1]}
+        td align='center'
+          a class='button' href='#' Delete Token
 
 h3 Add new token
 form action='/tokens' method='post'
@@ -15,7 +18,7 @@ form action='/tokens' method='post'
     tr
       td
         | Token: 
-        input type='text' name='token' size=90
+        input type='password' name='token' size=90
     tr
       td
         | Canvas URL: 

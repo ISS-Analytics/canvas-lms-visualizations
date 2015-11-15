@@ -32,20 +32,55 @@ module AppLoginHelper
 
   def register_teacher(email)
     teacher = Teacher.new(email: email)
-    teacher.password = enc_64(RbNaCl::Random.random_bytes(20))
     teacher.save ? login_teacher(email) : fail('Could not create new teacher')
+  end
+
+  def delete_tokens(email)
+    tokens = Token.where(email: email)
+    tokens.delete_all
   end
 
   def login_teacher(email)
     payload = { email: email }
     token = JWT.encode payload, ENV['MSG_KEY'], 'HS256'
     session[:auth_token] = token
-    if session[:redirect]
-      url = session[:redirect]
-      session.delete(:redirect)
-    else url = '/tokens'
+    # if session[:redirect]
+    #   url = session[:redirect]
+    #   session.delete(:redirect)
+    # else url = '/welcome'
+    # end
+    redirect '/welcome'
+  end
+
+  def create_password(password)
+    delete_tokens(@current_teacher.email)
+    teacher = find_teacher(@current_teacher.email)
+    teacher.password = password
+    if teacher.save
+      payload = session_password(password, teacher.token_salt)
+      session[:unleash_token] = payload
+      redirect '/tokens'
+    else
+      fail('This is a weird one.')
     end
-    redirect url
+  end
+
+  def retrieve(password)
+    teacher = Teacher.authenticate!(@current_teacher.email, password)
+    if teacher
+      payload = session_password(password, teacher.token_salt)
+      session[:unleash_token] = payload
+      redirect '/tokens'
+    else
+      flash[:error] = 'Wrong Password'
+      redirect '/welcome'
+    end
+  end
+
+  def session_password(password, tsalt)
+    payload = enc_64(Teacher.token_key(password, dec_64(tsalt)))
+    payload = { key: payload }
+    JWT.encode payload, ENV['MSG_KEY'], 'HS256'
   end
 
   def find_user_by_token(token)
@@ -55,30 +90,40 @@ module AppLoginHelper
     Teacher.find_by_email(payload['email'])
   end
 
+  def avail_tokens_for_user(token)
+    return nil unless token
+    decoded_token = JWT.decode token, ENV['MSG_KEY'], true
+    payload = decoded_token.first
+    payload['key']
+  end
+
   def list_tokens
     tokens = Token.where(email: @current_teacher.email)
     return tokens unless tokens
-    tokens.map { |token| [token.canvas_token_display, token.canvas_url] }
+    tokens.map do |token|
+      [token.canvas_token_display(@token_set), token.canvas_url]
+    end
   end
 
   def save_token(canvas_token, canvas_url)
     token = Token.new(email: @current_teacher.email, canvas_url: canvas_url)
-    token.canvas_token = canvas_token
+    token.nonce = @token_set
+    token.canvas_token = ([canvas_token, @token_set])
     return "Failed to save #{token.canvas_token_display}" unless token.save
-    "#{token.canvas_token_display} saved"
+    "#{token.canvas_token_display(@token_set)} saved"
   end
 
   def permitted_tokens(canvas_token_display)
     tokens = Token.where(email: @current_teacher.email)
     tokens.select do |token|
-      token.canvas_token_display.include? canvas_token_display
+      token.canvas_token_display(@token_set).include? canvas_token_display
     end[0]
   end
 
   def cross_tokens(canvas_token_display)
     permitted = permitted_tokens(canvas_token_display)
     return permitted if permitted
-    flash[:error] = 'You do not own this token!' # Overly risky handling
+    flash[:error] = 'You do not own this token!'
     redirect '/tokens'
   end
 end

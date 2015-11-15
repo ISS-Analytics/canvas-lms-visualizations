@@ -7,3 +7,13 @@
   color: #C00000;
   background-color: rgba(255, 0, 0, 0.3);
 }
+
+a.button {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+
+  text-decoration: none;
+  color: initial;
+  padding: 5px 10px 5px 10px;
+}
