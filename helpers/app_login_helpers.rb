@@ -60,6 +60,7 @@ module AppLoginHelper
   end
 
   def retrieve(password)
+    return no_password if @current_teacher.hashed_password.nil?
     teacher = Teacher.authenticate!(@current_teacher.email, password)
     if teacher
       session[:unleash_token] = session_password(password, teacher.token_salt)
@@ -68,6 +69,11 @@ module AppLoginHelper
       flash[:error] = 'Wrong Password'
       redirect '/welcome'
     end
+  end
+
+  def no_password
+    flash[:error] = 'You\'re yet to save a password.'
+    redirect '/welcome'
   end
 
   def session_password(password, tsalt)
@@ -88,35 +94,5 @@ module AppLoginHelper
     decoded_token = JWT.decode token, ENV['MSG_KEY'], true
     payload = decoded_token.first
     payload['key']
-  end
-
-  def list_tokens
-    tokens = Token.where(email: @current_teacher.email)
-    return tokens unless tokens
-    tokens.map do |token|
-      [token.canvas_token_display(@token_set), token.canvas_url]
-    end
-  end
-
-  def save_token(canvas_token, canvas_url)
-    token = Token.new(email: @current_teacher.email, canvas_url: canvas_url)
-    token.nonce = @token_set
-    token.canvas_token = ([canvas_token, @token_set])
-    return "Failed to save #{token.canvas_token_display}" unless token.save
-    "#{token.canvas_token_display(@token_set)} saved"
-  end
-
-  def permitted_tokens(canvas_token_display)
-    tokens = Token.where(email: @current_teacher.email)
-    tokens.select do |token|
-      token.canvas_token_display(@token_set).include? canvas_token_display
-    end[0]
-  end
-
-  def cross_tokens(canvas_token_display)
-    permitted = permitted_tokens(canvas_token_display)
-    return permitted if permitted
-    flash[:error] = 'You do not own this token!'
-    redirect '/tokens'
   end
 end
