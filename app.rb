@@ -13,6 +13,7 @@ require_relative './model/teacher'
 require_relative './model/token'
 require_relative './helpers/app_login_helpers'
 require_relative './helpers/app_api_helpers'
+require_relative './helpers/app_token_helpers'
 
 configure :development, :test do
   require 'hirb'
@@ -22,8 +23,9 @@ end
 
 # Visualizations for Canvas LMS Classes
 class CanvasLmsAPI < Sinatra::Base
-  include AppLoginHelper, AppAPIHelper
+  include AppLoginHelper, AppAPIHelper, AppTokenHelper
   enable :logging
+  use Rack::MethodOverride
 
   GOOGLE_OAUTH = 'https://accounts.google.com/o/oauth2/auth'
   GOOGLE_PARAMS = "?response_type=code&client_id=#{ENV['CLIENT_ID']}"
@@ -112,6 +114,12 @@ class CanvasLmsAPI < Sinatra::Base
     courses = courses(token.canvas_api, token.canvas_token(@token_set))
     slim :courses, locals: { courses: JSON.parse(courses),
                              token: params['canvas_token_display'] }
+  end
+
+  delete '/tokens/:canvas_token_display/?', auth: [:teacher, :token_set] do
+    token = cross_tokens(params['canvas_token_display'])
+    delete_token(token)
+    redirect '/tokens'
   end
 
   get '/tokens/:canvas_token_display/:course_id/:data/?',

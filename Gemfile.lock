@@ -36,6 +36,7 @@ GEM
     kramdown (1.5.0)
     minitest (5.7.0)
     multi_xml (0.5.5)
+    pg (0.18.4)
     protected_attributes (1.0.9)
       activemodel (>= 4.0.1, < 5.0)
     rack (1.6.4)
@@ -100,6 +101,7 @@ DEPENDENCIES
   jwt
   kramdown
   minitest
+  pg
   protected_attributes
   rack
   rack-flash3

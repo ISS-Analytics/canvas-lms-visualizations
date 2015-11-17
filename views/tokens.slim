@@ -3,14 +3,15 @@
     tr
       th List of current tokens (obfuscated)
       th Web Site
-      th Special Activity
+      th Delete Tokens
     - tokens.each do |token|
       tr
-        td 
+      form action="/tokens/#{token[0]}" method='post'
+        td
           a href="tokens/#{token[0]}" title='To access analytics' #{token[0]}
         td #{token[1]}
         td align='center'
-          a class='button' href='#' Delete Token
+          input type='submit' name='_method' value='delete'
 
 h3 Add new token
 form action='/tokens' method='post'

@@ -27,6 +27,10 @@ group :development, :test do
   gem 'rack'
 end
 
+group :production do
+  gem 'pg'
+end
+
 group :test do
   gem 'minitest'
   gem 'rack-test'
