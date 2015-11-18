@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 20151012075057) do
 
   create_table "tokens", force: :cascade do |t|
     t.text     "email"
-    t.text     "canvas_url"
+    t.text     "encrypted_url"
     t.text     "encrypted_token"
     t.text     "encrypted_nonce"
     t.datetime "created_at",      null: false

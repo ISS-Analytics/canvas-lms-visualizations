@@ -5,10 +5,10 @@ class Token < ActiveRecord::Base
   include ModelHelper
 
   validates :email, presence: true, format: /@/
-  validates :canvas_url, presence: true
+  validates :encrypted_url, presence: true
   validates :encrypted_token, presence: true
 
-  attr_accessible :email, :canvas_url
+  attr_accessible :email
 
   def canvas_token=(arr)
     params = arr[0]
@@ -19,6 +19,18 @@ class Token < ActiveRecord::Base
 
   def canvas_token(special_key)
     box.decrypt(dec_64(nonce(special_key)), dec_64(encrypted_token))
+  end
+
+  def canvas_url=(arr)
+    url = arr[0]
+    special_key = arr[1]
+    url = url[-1] != '/' ? url + '/' : url
+    self.encrypted_url = enc_64(box.encrypt(dec_64(nonce(special_key)),
+                                            "#{url}"))
+  end
+
+  def canvas_url(special_key)
+    box.decrypt(dec_64(nonce(special_key)), dec_64(encrypted_url))
   end
 
   def nonce=(special_key)
@@ -34,7 +46,7 @@ class Token < ActiveRecord::Base
     canvas_token(special_key)[0..10] + '*' * 7
   end
 
-  def canvas_api
-    canvas_url + 'api/v1/'
+  def canvas_api(special_key)
+    canvas_url(special_key) + 'api/v1/'
   end
 end

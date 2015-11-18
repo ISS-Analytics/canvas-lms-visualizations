@@ -4,7 +4,7 @@ module AppTokenHelper
     tokens = Token.where(email: @current_teacher.email)
     return tokens unless tokens
     tokens.map do |token|
-      [token.canvas_token_display(@token_set), token.canvas_url]
+      [token.canvas_token_display(@token_set), token.canvas_url(@token_set)]
     end
   end
 
@@ -17,10 +17,11 @@ module AppTokenHelper
   end
 
   def save_token(canvas_token, canvas_url)
-    token = Token.new(email: @current_teacher.email, canvas_url: canvas_url)
+    token = Token.new(email: @current_teacher.email)
     token.nonce = @token_set
+    token.canvas_url = ([canvas_url, @token_set])
     token.canvas_token = ([canvas_token, @token_set])
-    return "Failed to save #{token.canvas_token_display}" unless token.save
+    return "Failed #{token.canvas_token_display(@token_set)}" unless token.save
     "#{token.canvas_token_display(@token_set)} saved"
   end
 
