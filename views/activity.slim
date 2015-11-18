@@ -3,10 +3,12 @@ h2 Course Participation
 - views = {}
 - data.each { |activity| views[activity['date']] = activity['views'] }
 h3 Views
+- views = Hash[views.sort]
 == column_chart views
 h3 Participations
 - participations = Hash.new(0)
 - data.each { |activity| participations[activity['date']] = activity['participations'] }
+- participations = Hash[participations.sort]
 == column_chart participations
 / unless activity['date'].include? '2015' - ap data[0]
 - ap views

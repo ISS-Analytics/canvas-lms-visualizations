@@ -17,6 +17,7 @@ include scripts
           end \
         end
   h3 Discussions over time
+  - discussions = Hash[discussions.sort]
   == column_chart discussions
   - discussions_id = Hash[discussions_id.sort_by { |u, c| c }.reverse]
   - ap discussions
