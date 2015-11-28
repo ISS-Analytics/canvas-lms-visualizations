@@ -27,8 +27,9 @@ ActiveRecord::Schema.define(version: 20151012075057) do
     t.text     "encrypted_url"
     t.text     "encrypted_token"
     t.text     "encrypted_nonce"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.text     "encrypted_access_key"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
 end
