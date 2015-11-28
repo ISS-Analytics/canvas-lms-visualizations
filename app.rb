@@ -109,23 +109,23 @@ class CanvasLmsAPI < Sinatra::Base
     redirect '/tokens'
   end
 
-  get '/tokens/:canvas_token_display/?', auth: [:teacher, :token_set] do
-    token = cross_tokens(params['canvas_token_display'])
+  get '/tokens/:access_key/?', auth: [:teacher, :token_set] do
+    token = cross_tokens(params['access_key'])
     courses = courses(token.canvas_api(@token_set),
                       token.canvas_token(@token_set))
     slim :courses, locals: { courses: JSON.parse(courses),
-                             token: params['canvas_token_display'] }
+                             token: params['access_key'] }
   end
 
-  delete '/tokens/:canvas_token_display/?', auth: [:teacher, :token_set] do
-    token = cross_tokens(params['canvas_token_display'])
+  delete '/tokens/:access_key/?', auth: [:teacher, :token_set] do
+    token = cross_tokens(params['access_key'])
     delete_token(token)
     redirect '/tokens'
   end
 
-  get '/tokens/:canvas_token_display/:course_id/:data/?',
+  get '/tokens/:access_key/:course_id/:data/?',
       auth: [:teacher, :token_set] do
-    token = cross_tokens(params['canvas_token_display'])
+    token = cross_tokens(params['access_key'])
     arr = [token.canvas_api(@token_set), token.canvas_token(@token_set),
            params['course_id'], params['data']]
     result = result_route(params, arr)

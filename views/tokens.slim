@@ -6,9 +6,9 @@
       th Delete Tokens
     - tokens.each do |token|
       tr
-      form action="/tokens/#{token[0]}" method='post'
+      form action="/tokens/#{token[2]}" method='post'
         td
-          a href="tokens/#{token[0]}" title='To access analytics' #{token[0]}
+          a href="tokens/#{token[2]}" title='To access analytics' #{token[0]}
         td #{token[1]}
         td align='center'
           input type='submit' name='_method' value='delete'

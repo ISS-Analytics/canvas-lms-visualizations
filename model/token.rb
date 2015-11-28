@@ -13,8 +13,13 @@ class Token < ActiveRecord::Base
   def canvas_token=(arr)
     params = arr[0]
     special_key = arr[1]
+    self.encrypted_access_key = enc_64(RbNaCl::Hash.sha256(params))
     self.encrypted_token = enc_64(box.encrypt(dec_64(nonce(special_key)),
                                               "#{params}"))
+  end
+
+  def access_key
+    encrypted_access_key[0..10]
   end
 
   def canvas_token(special_key)
