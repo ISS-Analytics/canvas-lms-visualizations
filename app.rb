@@ -11,11 +11,6 @@ require 'ap'
 require 'concurrent'
 require 'jwt'
 require 'json'
-# require_relative './model/teacher'
-# require_relative './model/token'
-# require_relative './helpers/app_login_helpers'
-# require_relative './helpers/app_api_helpers'
-# require_relative './helpers/app_token_helpers'
 
 configure :development, :test do
   require 'hirb'

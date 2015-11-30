@@ -43,11 +43,7 @@ h3 Median Scores as percentage of Possible Points
 div id='container'
 
 javascript:
-  var cat = JSON.stringify("#{scores.keys}").replace(/&quot;/g, "'");
-  cat = JSON.parse(cat);
-  // var cat = new Array("#{scores.keys.each { |x| x }}".replace(/&quot;/g, "'").split(','));
-  // console.log(cat);
-  // console.log(['1', '2', '3', '4', '5', '6']);
+  var cat = JSON.parse("#{scores.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
   var values = JSON.parse("#{scores.values}");
   $(function () {
     $('#container').highcharts({
@@ -55,13 +51,12 @@ javascript:
             type: 'boxplot'
         },
         title: {
-            text: 'There\'s a problem with the x-axis labels for now'
+            text: 'Box plot for Assignment Scores'
         },
         legend: {
             enabled: false
         },
         xAxis: {
-            // categories: ['1', '2', '3', '4', '5', '6'],
             categories: cat,
             title: {
                 text: 'Assignments'
@@ -69,7 +64,7 @@ javascript:
         },
         yAxis: {
             title: {
-                text: 'Scores'
+                text: 'Raw Scores'
             }
         },
         series: [{
