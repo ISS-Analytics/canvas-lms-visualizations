@@ -1,4 +1,8 @@
-require './app.rb'
+Dir.glob('./{models,helpers,services,values,.}/*.rb')
+  .each do |file|
+  require file
+end
+
 require 'sinatra/activerecord/rake'
 require 'config_env/rake_tasks'
 require 'rake/testtask'
