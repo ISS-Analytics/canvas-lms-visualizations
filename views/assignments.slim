@@ -4,6 +4,7 @@ h2 Assignments
 - tardiness[:missing] = {}
 - tardiness[:late] = {}
 - tardiness[:on_time] = {}
+- data = data.sort_by { |k, _v| k['due_at'] } unless data.any? { |k, _v| k['due_at'].nil? }
 - data.each do |assignment| \
     tardiness[:missing][assignment['title']] = [assignment['tardiness_breakdown']['missing'], assignment['tardiness_breakdown']['total']]; \
     tardiness[:late][assignment['title']] = [assignment['tardiness_breakdown']['late'], assignment['tardiness_breakdown']['total']]; \
