@@ -114,8 +114,9 @@ class CanvasLmsAPI < Sinatra::Base
 
   get '/tokens/:access_key/?', auth: [:teacher, :token_set] do
     token = cross_tokens(params['access_key'])
-    courses = courses(token.canvas_api(@token_set),
-                      token.canvas_token(@token_set))
+    courses = GetCoursesFromCanvas.new(token.canvas_api(@token_set),
+                                       token.canvas_token(@token_set))
+    courses = courses.call
     slim :courses, locals: { courses: JSON.parse(courses),
                              token: params['access_key'] }
   end

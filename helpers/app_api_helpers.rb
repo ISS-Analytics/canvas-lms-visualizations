@@ -13,17 +13,6 @@ module AppAPIHelper
     end
   end
 
-  # def api_party(url, canvas_token)
-  #   headers = { 'authorization' => ('Bearer ' + canvas_token) }
-  #   (HTTParty.get url, headers: headers).to_json
-  # end
-
-  def courses(canvas_api, canvas_token)
-    url = canvas_api + 'courses'
-    visit_canvas = VisitCanvasAPI.new(url, canvas_token)
-    visit_canvas.call
-  end
-
   def course_analytics(canvas_api, canvas_token, course_id, data)
     url = canvas_api + 'courses/' + course_id + "/analytics/#{data}"
     visit_canvas = VisitCanvasAPI.new(url, canvas_token)
