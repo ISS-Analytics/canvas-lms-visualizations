@@ -1,4 +1,5 @@
 include scripts
+/ - ap data
 h2 Assignments
 - tardiness = {}
 - tardiness[:missing] = {}
@@ -24,12 +25,77 @@ h3 Tardiness
 == column_chart tard, stacked: true
 h3 Median Scores as percentage of Possible Points
 - scores = {}
-- data.map { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
-- scores.delete_if { |key, value| key.nil? || value[0].nil? || value[1].nil? }
+- data.each { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
 - scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
 - MIN_PERCENTAGE = 0
 - MAX_PERCENTAGE = 100
 == column_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
-- ap data[0]
+- scores = {}
+- data.each { |assignment| scores[assignment['title']] =[\
+              assignment['min_score'], assignment['first_quartile'],\
+              assignment['median'], assignment['third_quartile'],\
+              assignment['max_score']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
+- ap data[10]
 - ap tardiness
-- ap scores
+- ap scores.keys
+div id='container'
+
+javascript:
+  var cat = JSON.stringify("#{scores.keys}").replace(/&quot;/g, "'");
+  cat = JSON.parse(cat);
+  // var cat = new Array("#{scores.keys.each { |x| x }}".replace(/&quot;/g, "'").split(','));
+  // console.log(cat);
+  // console.log(['1', '2', '3', '4', '5', '6']);
+  var values = JSON.parse("#{scores.values}");
+  $(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'boxplot'
+        },
+        title: {
+            text: 'There\'s a problem with the x-axis labels for now'
+        },
+        legend: {
+            enabled: false
+        },
+        xAxis: {
+            // categories: ['1', '2', '3', '4', '5', '6'],
+            categories: cat,
+            title: {
+                text: 'Assignments'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Scores'
+            }
+        },
+        series: [{
+            name: 'Observations',
+            data: values,
+            tooltip: {
+                headerFormat: '<em>Assignment: {point.key}</em><br/>'
+            }
+        }, {
+            name: 'Outlier',
+            color: Highcharts.getOptions().colors[0],
+            type: 'scatter',
+            data: [ // x, y positions where 0 is the first category
+                // [0, 644],
+                // [4, 718],
+                // [4, 951],
+                // [4, 969]
+            ],
+            marker: {
+                fillColor: 'white',
+                lineWidth: 1,
+                lineColor: Highcharts.getOptions().colors[0]
+            },
+            tooltip: {
+                pointFormat: 'Observation: {point.y}'
+            }
+        }]
+    });
+  });
