@@ -9,11 +9,8 @@ require 'chartkick'
 require 'groupdate'
 require 'ap'
 require 'concurrent'
-require_relative './model/teacher'
-require_relative './model/token'
-require_relative './helpers/app_login_helpers'
-require_relative './helpers/app_api_helpers'
-require_relative './helpers/app_token_helpers'
+require 'jwt'
+require 'json'
 
 configure :development, :test do
   require 'hirb'
@@ -36,6 +33,7 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   configure do
+    # TODO: Session Variable Session::Pool
     use Rack::Session::Cookie, secret: settings.session_secret
     use Rack::Flash, sweep: true
   end
@@ -111,8 +109,9 @@ class CanvasLmsAPI < Sinatra::Base
 
   get '/tokens/:access_key/?', auth: [:teacher, :token_set] do
     token = cross_tokens(params['access_key'])
-    courses = courses(token.canvas_api(@token_set),
-                      token.canvas_token(@token_set))
+    courses = GetCoursesFromCanvas.new(token.canvas_api(@token_set),
+                                       token.canvas_token(@token_set))
+    courses = courses.call
     slim :courses, locals: { courses: JSON.parse(courses),
                              token: params['access_key'] }
   end
@@ -128,7 +127,8 @@ class CanvasLmsAPI < Sinatra::Base
     token = cross_tokens(params['access_key'])
     arr = [token.canvas_api(@token_set), token.canvas_token(@token_set),
            params['course_id'], params['data']]
-    result = result_route(params, arr)
+    service_object = service_object_traffic_controller(params, arr)
+    result = service_object.call
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }
   end

@@ -1,9 +1,11 @@
 include scripts
+/ - ap data
 h2 Assignments
 - tardiness = {}
 - tardiness[:missing] = {}
 - tardiness[:late] = {}
 - tardiness[:on_time] = {}
+- data = data.sort_by { |k, _v| k['due_at'] } unless data.any? { |k, _v| k['due_at'].nil? }
 - data.each do |assignment| \
     tardiness[:missing][assignment['title']] = [assignment['tardiness_breakdown']['missing'], assignment['tardiness_breakdown']['total']]; \
     tardiness[:late][assignment['title']] = [assignment['tardiness_breakdown']['late'], assignment['tardiness_breakdown']['total']]; \
@@ -23,12 +25,72 @@ h3 Tardiness
 == column_chart tard, stacked: true
 h3 Median Scores as percentage of Possible Points
 - scores = {}
-- data.map { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
-- scores.delete_if { |key, value| key.nil? || value[0].nil? || value[1].nil? }
+- data.each { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
 - scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
 - MIN_PERCENTAGE = 0
 - MAX_PERCENTAGE = 100
 == column_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
-- ap data[0]
+- scores = {}
+- data.each { |assignment| scores[assignment['title']] =[\
+              assignment['min_score'], assignment['first_quartile'],\
+              assignment['median'], assignment['third_quartile'],\
+              assignment['max_score']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
+- ap data[10]
 - ap tardiness
-- ap scores
+- ap scores.keys
+div id='container'
+
+javascript:
+  var cat = JSON.parse("#{scores.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var values = JSON.parse("#{scores.values}");
+  $(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'boxplot'
+        },
+        title: {
+            text: 'Box plot for Assignment Scores'
+        },
+        legend: {
+            enabled: false
+        },
+        xAxis: {
+            categories: cat,
+            title: {
+                text: 'Assignments'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Raw Scores'
+            }
+        },
+        series: [{
+            name: 'Observations',
+            data: values,
+            tooltip: {
+                headerFormat: '<em>Assignment: {point.key}</em><br/>'
+            }
+        }, {
+            name: 'Outlier',
+            color: Highcharts.getOptions().colors[0],
+            type: 'scatter',
+            data: [ // x, y positions where 0 is the first category
+                // [0, 644],
+                // [4, 718],
+                // [4, 951],
+                // [4, 969]
+            ],
+            marker: {
+                fillColor: 'white',
+                lineWidth: 1,
+                lineColor: Highcharts.getOptions().colors[0]
+            },
+            tooltip: {
+                pointFormat: 'Observation: {point.y}'
+            }
+        }]
+    });
+  });
