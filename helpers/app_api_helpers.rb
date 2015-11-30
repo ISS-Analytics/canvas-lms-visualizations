@@ -1,6 +1,3 @@
-require 'jwt'
-require 'json'
-
 # Helper module for app, handling API
 module AppAPIHelper
   def result_route(params, arr)
@@ -16,24 +13,27 @@ module AppAPIHelper
     end
   end
 
-  def api_party(url, canvas_token)
-    headers = { 'authorization' => ('Bearer ' + canvas_token) }
-    (HTTParty.get url, headers: headers).to_json
-  end
+  # def api_party(url, canvas_token)
+  #   headers = { 'authorization' => ('Bearer ' + canvas_token) }
+  #   (HTTParty.get url, headers: headers).to_json
+  # end
 
   def courses(canvas_api, canvas_token)
     url = canvas_api + 'courses'
-    api_party(url, canvas_token)
+    visit_canvas = VisitCanvasAPI.new(url, canvas_token)
+    visit_canvas.call
   end
 
   def course_analytics(canvas_api, canvas_token, course_id, data)
     url = canvas_api + 'courses/' + course_id + "/analytics/#{data}"
-    api_party(url, canvas_token)
+    visit_canvas = VisitCanvasAPI.new(url, canvas_token)
+    visit_canvas.call
   end
 
   def course_info(canvas_api, canvas_token, course_id, data)
     url = canvas_api + 'courses/' + course_id + "/#{data}"
-    api_party(url, canvas_token)
+    visit_canvas = VisitCanvasAPI.new(url, canvas_token)
+    visit_canvas.call
   end
 
   def all_discussion(canvas_api, canvas_token, course_id, data)
