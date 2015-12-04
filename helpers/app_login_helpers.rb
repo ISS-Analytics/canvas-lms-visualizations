@@ -4,25 +4,6 @@
 module AppLoginHelper
   include ModelHelper
 
-  # GOOGLE_API = 'https://www.googleapis.com/oauth2/'
-
-  # def callback_gmail(params)
-  #   HTTParty.post(
-  #     "#{GOOGLE_API}v3/token",
-  #     body: { code: params['code'], client_id: ENV['CLIENT_ID'],
-  #             client_secret: ENV['CLIENT_SECRET'],
-  #             grant_type: 'authorization_code',
-  #             redirect_uri: "#{request.base_url}/oauth2callback_gmail" },
-  #     headers: { 'Accept' => 'application/json' })
-  # end
-
-  # def teacher_email(access_token)
-  #   url = "#{GOOGLE_API}v2/userinfo"
-  #   headers = { 'authorization' => "Bearer #{access_token}" }
-  #   results_json = (HTTParty.get url, headers: headers).to_json
-  #   JSON.parse(results_json)['email']
-  # end
-
   def find_teacher(email)
     Teacher.find_by_email(email)
   end
