@@ -33,8 +33,7 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   configure do
-    # TODO: Session Variable Session::Pool
-    use Rack::Session::Cookie, secret: settings.session_secret
+    use Rack::Session::Pool, secret: settings.session_secret
     use Rack::Flash, sweep: true
   end
 
