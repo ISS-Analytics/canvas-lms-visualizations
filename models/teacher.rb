@@ -1,3 +1,4 @@
+require 'sinatra'
 require 'sinatra/activerecord'
 require 'protected_attributes'
 require_relative '../config/environments'
