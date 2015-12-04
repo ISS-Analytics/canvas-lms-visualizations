@@ -1,4 +1,4 @@
-# require_relative './model_helpers'
+require_relative './model_helpers'
 
 # Helper module for app, handling login
 module AppLoginHelper

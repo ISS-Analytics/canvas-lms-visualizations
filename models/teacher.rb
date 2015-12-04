@@ -1,7 +1,3 @@
-require 'sinatra'
-require 'sinatra/activerecord'
-require 'protected_attributes'
-require_relative '../config/environments'
 require_relative '../helpers/model_helpers'
 
 # Class for Canvas teachers
