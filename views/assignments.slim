@@ -23,44 +23,30 @@ h3 Tardiness
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
 / == area_chart tard, discrete: true
 == column_chart tard, stacked: true
-/ h3 Median Scores as percentage of Possible Points
-/ - scores = {}
-/ - data.each { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
-/ - scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
-/ - scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
-/ - MIN_PERCENTAGE = 0
-/ - MAX_PERCENTAGE = 100
-/ == column_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
+h3 Median Scores as percentage of Possible Points
+- scores = {}
+- data.each { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
+- scores = Hash[scores.map { |key, value| [key, value[0]/value[1].to_f * 100] } ]
+- MIN_PERCENTAGE = 0
+- MAX_PERCENTAGE = 100
+== column_chart scores, min: MIN_PERCENTAGE, max: MAX_PERCENTAGE
 - scores = {}
 - data.each { |assignment| scores[assignment['title']] =[\
               assignment['min_score'], assignment['first_quartile'],\
               assignment['median'], assignment['third_quartile'],\
               assignment['max_score']] }
 - scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
-/ - ap data[10]
-/ - ap tardiness
-/ - ap scores
-div id='assignment-box'
-- scores_percent = {}
-- data.each { |assignment| scores_percent[assignment['title']] =[\
-              assignment['min_score'], assignment['first_quartile'],\
-              assignment['median'], assignment['third_quartile'],\
-              assignment['max_score'], assignment['points_possible']] }
-- scores_percent.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
-- scores_percent.each do |key, values| \
-    scores_percent[key] = values.map.each_with_index do |value, index| \
-      value = (value / values[5].to_f * 100).round 2 unless index == 5 \
-    end.compact \
-  end
-div id='assignment-box-percent'
+- ap data[10]
+- ap tardiness
+- ap scores.keys
+div id='container'
 
 javascript:
   var cat = JSON.parse("#{scores.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
   var values = JSON.parse("#{scores.values}");
-  var cat_percent = JSON.parse("#{scores_percent.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
-  var values_percent = JSON.parse("#{scores_percent.values}");
   $(function () {
-    $('#assignment-box').highcharts({
+    $('#container').highcharts({
         chart: {
             type: 'boxplot'
         },
@@ -77,7 +63,6 @@ javascript:
             }
         },
         yAxis: {
-            min: 0,
             title: {
                 text: 'Raw Scores'
             }
@@ -85,55 +70,6 @@ javascript:
         series: [{
             name: 'Observations',
             data: values,
-            tooltip: {
-                headerFormat: '<em>Assignment: {point.key}</em><br/>'
-            }
-        }, {
-            name: 'Outlier',
-            color: Highcharts.getOptions().colors[0],
-            type: 'scatter',
-            data: [ // x, y positions where 0 is the first category
-                // [0, 644],
-                // [4, 718],
-                // [4, 951],
-                // [4, 969]
-            ],
-            marker: {
-                fillColor: 'white',
-                lineWidth: 1,
-                lineColor: Highcharts.getOptions().colors[0]
-            },
-            tooltip: {
-                pointFormat: 'Observation: {point.y}'
-            }
-        }]
-    });
-    $('#assignment-box-percent').highcharts({
-        chart: {
-            type: 'boxplot'
-        },
-        title: {
-            text: 'Box plot for Assignment Scores %'
-        },
-        legend: {
-            enabled: false
-        },
-        xAxis: {
-            categories: cat_percent,
-            title: {
-                text: 'Assignments'
-            }
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percent Scores'
-            }
-        },
-        series: [{
-            name: 'Observations',
-            data: values_percent,
             tooltip: {
                 headerFormat: '<em>Assignment: {point.key}</em><br/>'
             }
