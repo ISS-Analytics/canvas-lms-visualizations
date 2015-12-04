@@ -12,6 +12,9 @@ require 'concurrent'
 require 'jwt'
 require 'json'
 require 'tilt/kramdown'
+require_relative '../helpers/app_api_helpers'
+require_relative '../helpers/app_login_helpers'
+require_relative '../helpers/app_token_helpers'
 
 configure :development, :test do
   require 'hirb'
