@@ -1,9 +1,6 @@
 require 'base64'
 require 'rbnacl/libsodium'
 require 'json'
-require 'sinatra'
-require 'sinatra/activerecord'
-require_relative '../config/environments'
 require 'protected_attributes'
 
 # Helper module for models
