@@ -62,9 +62,9 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   get '/oauth2callback_gmail/?' do
-    callback_json = callback_gmail(params).to_json
-    access_token = JSON.parse(callback_json)['access_token']
-    email = teacher_email(access_token)
+    access_token = CallbackGmail.new(params, request).call
+    # access_token = JSON.parse(callback_json)['access_token']
+    email = GoogleTeacherEmail.new(access_token).call
     find_teacher(email) ? login_teacher(email) : register_teacher(email)
   end
 
