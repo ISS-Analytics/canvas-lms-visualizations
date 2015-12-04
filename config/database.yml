@@ -1,0 +1,10 @@
+---
+development:
+  adapter: sqlite3
+  database: db/dev.db
+  show_exceptions: true
+
+test:
+  adapter: sqlite3
+  database: db/test.db
+  show_exceptions: true

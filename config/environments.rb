@@ -1,11 +1,5 @@
-configure :development do
-  set :database, 'sqlite3:db/dev.db'
-  set :show_exceptions, true
-end
-
-configure :test do
-  set :database, 'sqlite3:db/test.db'
-  set :show_exceptions, true
+configure :development, :test do
+  ActiveRecord::Base.configurations = YAML.load_file('config/database.yml')
 end
 
 configure :production do
