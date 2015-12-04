@@ -1,6 +1,5 @@
 Dir.glob('./{models,helpers,controllers,services,values}/*.rb')
   .each do |file|
-  puts file
   require file
 end
 
