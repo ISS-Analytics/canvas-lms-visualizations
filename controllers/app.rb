@@ -1,4 +1,4 @@
-require 'sinatra'
+require 'sinatra/base'
 require 'config_env'
 require 'rack/ssl-enforcer'
 require 'httparty'
