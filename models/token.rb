@@ -1,4 +1,5 @@
 require_relative '../helpers/model_helpers'
+require_relative '../config/environments'
 
 # Class for Canvas tokens
 class Token < ActiveRecord::Base
