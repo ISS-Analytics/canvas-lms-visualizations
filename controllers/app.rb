@@ -11,11 +11,13 @@ require 'ap'
 require 'concurrent'
 require 'jwt'
 require 'json'
+require 'tilt/kramdown'
 
 configure :development, :test do
   require 'hirb'
-  ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
   Hirb.enable
+  absolute_path = File.absolute_path './config/config_env.rb'
+  ConfigEnv.path_to_config(absolute_path)
 end
 
 # Visualizations for Canvas LMS Classes
@@ -26,6 +28,10 @@ class CanvasLmsAPI < Sinatra::Base
 
   GOOGLE_OAUTH = 'https://accounts.google.com/o/oauth2/auth'
   GOOGLE_PARAMS = "?response_type=code&client_id=#{ENV['CLIENT_ID']}"
+
+  set :views, File.expand_path('../../views', __FILE__)
+  set :public_folder, File.expand_path('../../public', __FILE__)
+  set :env_dir, File.expand_path('../../config', __FILE__)
 
   configure :production do
     use Rack::SslEnforcer
