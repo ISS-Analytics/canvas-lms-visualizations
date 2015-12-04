@@ -1,6 +1,6 @@
 # \ -s puma
 
-Dir.glob('./{models,helpers,controllers,services,values}/*.rb')
+Dir.glob('./{controllers,services,models,helpers,values}/*.rb')
   .each do |file|
   require file
 end
