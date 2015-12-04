@@ -2,3 +2,4 @@ files/*
 config/*_env.rb
 db/*.db
 .bundle/
+config/database.yml
