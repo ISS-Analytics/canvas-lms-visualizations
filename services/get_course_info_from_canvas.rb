@@ -1,9 +1,10 @@
 # Service Object that gets course info from Canvas API
 # Depends on what info is request, this covers a number of API calls
 class GetCourseInfoFromCanvas
-  def initialize(canvas_api, canvas_token, course_id, data)
-    @url = canvas_api + 'courses/' + course_id + "/#{data}"
-    @canvas_token = canvas_token
+  def initialize(data_for_api)
+    @url = data_for_api.canvas_api + 'courses/' + data_for_api.course_id +
+           "/#{data_for_api.data}"
+    @canvas_token = data_for_api.canvas_token
   end
 
   def call

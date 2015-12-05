@@ -1,15 +1,15 @@
 # Helper module for app, handling API
 module AppAPIHelper
-  def service_object_traffic_controller(params, arr)
+  def service_object_traffic_controller(params, data_for_api)
     if params['data'] == 'discussion_topics'
-      GetDiscussionsFromCanvas.new(*arr)
+      GetDiscussionsFromCanvas.new(data_for_api)
     elsif params['data'] == 'quizzes'
-      GetQuizzesFromCanvas.new(*arr)
+      GetQuizzesFromCanvas.new(data_for_api)
     elsif params['data'] == 'users'
-      GetUserLevelDataFromCanvas.new(*arr)
+      GetUserLevelDataFromCanvas.new(data_for_api)
     elsif params['no_analytics']
-      GetCourseInfoFromCanvas.new(*arr)
-    else GetCourseAnalyticsFromCanvas.new(*arr)
+      GetCourseInfoFromCanvas.new(data_for_api)
+    else GetCourseAnalyticsFromCanvas.new(data_for_api)
     end
   end
 end

@@ -47,7 +47,6 @@ class CanvasVisualizationApp < Sinatra::Base
     def auth(*types)
       condition do
         if (types.include? :teacher) && !@current_teacher
-          # session[:redirect] = request.env['REQUEST_URI']
           flash[:error] = 'You must be logged in to view that page'
           redirect '/'
         elsif (types.include? :token_set) && !@token_set
@@ -129,9 +128,11 @@ class CanvasVisualizationApp < Sinatra::Base
   get '/tokens/:access_key/:course_id/:data/?',
       auth: [:teacher, :token_set] do
     token = you_shall_not_pass!(params['access_key'])
-    arr = [token.canvas_api(@token_set), token.canvas_token(@token_set),
-           params['course_id'], params['data']]
-    service_object = service_object_traffic_controller(params, arr)
+    data_for_api = DataForApiCall.new(
+      token.canvas_api(@token_set), token.canvas_token(@token_set),
+      params['course_id'], params['data']
+    )
+    service_object = service_object_traffic_controller(params, data_for_api)
     result = service_object.call
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }

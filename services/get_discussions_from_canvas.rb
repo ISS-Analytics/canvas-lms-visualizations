@@ -1,23 +1,28 @@
 # Service Object that gets discussion data from Canvas API
 class GetDiscussionsFromCanvas
-  def initialize(canvas_api, canvas_token, course_id, data)
-    @canvas_api = canvas_api
-    @canvas_token = canvas_token
-    @course_id = course_id
-    @data = data
+  def initialize(data_for_api)
+    @canvas_api = data_for_api.canvas_api
+    @canvas_token = data_for_api.canvas_token
+    @course_id = data_for_api.course_id
+    @data = data_for_api.data
   end
 
   def call
     discussion_list.map do |discussion|
       Concurrent::Future.new do
-        GetCourseInfoFromCanvas.new(@canvas_api, @canvas_token, @course_id,
-                                    "/#{@data}/#{discussion['id']}/view").call
+        data_for_api = DataForApiCall.new(
+          @canvas_api, @canvas_token, @course_id,
+          "/#{@data}/#{discussion['id']}/view"
+        )
+        GetCourseInfoFromCanvas.new(data_for_api).call
       end; end.map(&:execute).map(&:value).to_json
   end
 
   def discussion_list
-    discussions = GetCourseInfoFromCanvas.new(@canvas_api, @canvas_token,
-                                              @course_id, @data).call
+    data_for_api = DataForApiCall.new(
+      @canvas_api, @canvas_token, @course_id, @data
+    )
+    discussions = GetCourseInfoFromCanvas.new(data_for_api).call
     JSON.parse(discussions)
   end
 end
