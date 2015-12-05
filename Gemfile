@@ -21,6 +21,7 @@ gem 'chartkick'
 gem 'groupdate'
 gem 'awesome_print'
 gem 'concurrent-ruby'
+gem 'virtus'
 
 group :development, :test do
   gem 'sqlite3'

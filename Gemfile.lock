@@ -16,11 +16,20 @@ GEM
       tzinfo (~> 1.1)
     arel (6.0.0)
     awesome_print (1.6.1)
+    axiom-types (0.1.1)
+      descendants_tracker (~> 0.0.4)
+      ice_nine (~> 0.11.0)
+      thread_safe (~> 0.3, >= 0.3.1)
     bond (0.5.1)
     builder (3.2.2)
     chartkick (1.4.1)
+    coercible (1.0.0)
+      descendants_tracker (~> 0.0.1)
     concurrent-ruby (0.9.1)
     config_env (0.1.0)
+    descendants_tracker (0.0.4)
+      thread_safe (~> 0.3, >= 0.3.1)
+    equalizer (0.0.11)
     ffi (1.9.10)
     groupdate (2.5.0)
       activesupport (>= 3)
@@ -29,6 +38,7 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
+    ice_nine (0.11.1)
     json (1.8.3)
     jwt (1.5.0)
     kramdown (1.5.0)
@@ -80,6 +90,11 @@ GEM
       sinatra (>= 1.2.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    virtus (1.0.5)
+      axiom-types (~> 0.1)
+      coercible (~> 1.0)
+      descendants_tracker (~> 0.0, >= 0.0.3)
+      equalizer (~> 0.0, >= 0.0.9)
 
 PLATFORMS
   ruby
@@ -110,3 +125,4 @@ DEPENDENCIES
   slim
   sqlite3
   tux
+  virtus

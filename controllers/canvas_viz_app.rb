@@ -88,10 +88,11 @@ class CanvasVisualizationApp < Sinatra::Base
   end
 
   post '/new_teacher', auth: [:teacher] do
-    if params['password'] == params['password_confirm']
+    create_password_form = CreatePasswordForm.new(params)
+    if create_password_form.valid?
       create_password(params['password'])
     else
-      flash[:error] = 'Please write the same password twice'
+      flash[:error] = "#{create_password_form.error_message}."
       redirect '/welcome'
     end
   end
