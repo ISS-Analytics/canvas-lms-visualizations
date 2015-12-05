@@ -26,16 +26,16 @@ module AppTokenHelper
     "#{token.canvas_token_display(@token_set)} saved"
   end
 
-  def permitted_tokens(access_key)
+  def permitted_tokens_for_teacher(access_key)
     tokens = Token.where(email: @current_teacher.email)
     tokens.select do |token|
       token.access_key.include? access_key
     end[0]
   end
 
-  def cross_tokens(access_key)
-    permitted = permitted_tokens(access_key)
-    return permitted if permitted
+  def you_shall_not_pass!(access_key)
+    permitted_tokens = permitted_tokens_for_teacher(access_key)
+    return permitted_tokens if permitted_tokens
     flash[:error] = 'You do not own this token!'
     redirect '/tokens'
   end

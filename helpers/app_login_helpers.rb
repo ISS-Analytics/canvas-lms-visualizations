@@ -1,4 +1,4 @@
-require_relative '../models/model_helpers'
+require_relative './model_helpers'
 
 # Helper module for app, handling login
 module AppLoginHelper
@@ -56,7 +56,7 @@ module AppLoginHelper
   end
 
   def session_password(password, tsalt)
-    payload = enc_64(Teacher.token_key(password, dec_64(tsalt)))
+    payload = base_64_encode(Teacher.token_key(password, base_64_decode(tsalt)))
     payload = { key: payload }
     JWT.encode payload, ENV['MSG_KEY'], 'HS256'
   end
