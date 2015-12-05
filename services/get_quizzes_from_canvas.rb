@@ -1,24 +1,28 @@
 # Service Object that gets quiz data from Canvas API
 class GetQuizzesFromCanvas
-  def initialize(canvas_api, canvas_token, course_id, data)
-    @canvas_api = canvas_api
-    @canvas_token = canvas_token
-    @course_id = course_id
-    @data = data
+  def initialize(data_for_api)
+    @canvas_api = data_for_api.canvas_api
+    @canvas_token = data_for_api.canvas_token
+    @course_id = data_for_api.course_id
+    @data = data_for_api.data
   end
 
   def call
     quiz_list.map do |quiz|
       Concurrent::Future.new do
-        { quiz['title'] => GetCourseInfoFromCanvas.new(
+        data_for_api = DataForApiCall.new(
           @canvas_api, @canvas_token, @course_id,
-          "/#{@data}/#{quiz['id']}/statistics").call }
+          "/#{@data}/#{quiz['id']}/statistics"
+        )
+        { quiz['title'] => GetCourseInfoFromCanvas.new(data_for_api).call }
       end; end.map(&:execute).map(&:value).to_json
   end
 
   def quiz_list
-    quizzes = GetCourseInfoFromCanvas.new(@canvas_api, @canvas_token,
-                                          @course_id, @data).call
+    data_for_api = DataForApiCall.new(
+      @canvas_api, @canvas_token, @course_id, @data
+    )
+    quizzes = GetCourseInfoFromCanvas.new(data_for_api).call
     JSON.parse(quizzes)
   end
 end

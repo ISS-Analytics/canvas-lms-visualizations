@@ -1,4 +1,4 @@
-require_relative './model_helpers'
+require_relative '../helpers/model_helpers'
 
 # Class for Canvas tokens
 class Token < ActiveRecord::Base
@@ -13,9 +13,10 @@ class Token < ActiveRecord::Base
   def canvas_token=(arr)
     params = arr[0]
     special_key = arr[1]
-    self.encrypted_access_key = enc_64(RbNaCl::Hash.sha256(params))
-    self.encrypted_token = enc_64(box.encrypt(dec_64(nonce(special_key)),
-                                              "#{params}"))
+    self.encrypted_access_key = base_64_encode(RbNaCl::Hash.sha256(params))
+    self.encrypted_token = base_64_encode(
+      secret_box.encrypt(base_64_decode(nonce(special_key)), "#{params}")
+    )
   end
 
   def access_key
@@ -23,28 +24,39 @@ class Token < ActiveRecord::Base
   end
 
   def canvas_token(special_key)
-    box.decrypt(dec_64(nonce(special_key)), dec_64(encrypted_token))
+    secret_box.decrypt(
+      base_64_decode(nonce(special_key)), base_64_decode(encrypted_token)
+    )
   end
 
   def canvas_url=(arr)
     url = arr[0]
     special_key = arr[1]
     url = url[-1] != '/' ? url + '/' : url
-    self.encrypted_url = enc_64(box.encrypt(dec_64(nonce(special_key)),
-                                            "#{url}"))
+    self.encrypted_url = base_64_encode(
+      secret_box.encrypt(base_64_decode(nonce(special_key)), "#{url}")
+    )
   end
 
   def canvas_url(special_key)
-    box.decrypt(dec_64(nonce(special_key)), dec_64(encrypted_url))
+    secret_box.decrypt(
+      base_64_decode(nonce(special_key)), base_64_decode(encrypted_url)
+    )
   end
 
   def nonce=(special_key)
-    nonce_value = enc_64(RbNaCl::Random.random_bytes(box.nonce_bytes))
-    self.encrypted_nonce = enc_64(box.encrypt(dec_64(special_key), nonce_value))
+    nonce_value = base_64_encode(
+      RbNaCl::Random.random_bytes(secret_box.nonce_bytes)
+    )
+    self.encrypted_nonce = base_64_encode(
+      secret_box.encrypt(base_64_decode(special_key), nonce_value)
+    )
   end
 
   def nonce(special_key)
-    box.decrypt(dec_64(special_key), dec_64(encrypted_nonce))
+    secret_box.decrypt(
+      base_64_decode(special_key), base_64_decode(encrypted_nonce)
+    )
   end
 
   def canvas_token_display(special_key)

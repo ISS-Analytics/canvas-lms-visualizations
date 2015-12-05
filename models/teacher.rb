@@ -1,4 +1,4 @@
-require_relative './model_helpers'
+require_relative '../helpers/model_helpers'
 
 # Class for Canvas teachers
 class Teacher < ActiveRecord::Base
@@ -14,9 +14,9 @@ class Teacher < ActiveRecord::Base
     tsalt = RbNaCl::Random.random_bytes(RbNaCl::PasswordHash::SCrypt::SALTBYTES)
     digest_size = 64
     digest = self.class.hash_password(salt, new_password, digest_size)
-    self.salt = enc_64(salt)
-    self.token_salt = enc_64(tsalt)
-    self.hashed_password = enc_64(digest)
+    self.salt = base_64_encode(salt)
+    self.token_salt = base_64_encode(tsalt)
+    self.hashed_password = base_64_encode(digest)
   end
 
   def self.authenticate!(email, login_password)
@@ -30,10 +30,10 @@ class Teacher < ActiveRecord::Base
   end
 
   def password_matches?(try_password)
-    salt = dec_64(self.salt)
+    salt = base_64_decode(self.salt)
     size = 64
     attempted_password = self.class.hash_password(salt, try_password, size)
-    hashed_password == enc_64(attempted_password)
+    hashed_password == base_64_encode(attempted_password)
   end
 
   def self.hash_password(salt, pwd, digest_size)

@@ -6,7 +6,7 @@ require 'slim'
 require 'slim/include'
 require 'rack-flash'
 require 'chartkick'
-require 'groupdate'
+# require 'groupdate'
 require 'ap'
 require 'concurrent'
 require 'jwt'
@@ -21,7 +21,7 @@ configure :development, :test do
 end
 
 # Visualizations for Canvas LMS Classes
-class CanvasLmsAPI < Sinatra::Base
+class CanvasVisualizationApp < Sinatra::Base
   include AppLoginHelper, AppAPIHelper, AppTokenHelper
   enable :logging
   use Rack::MethodOverride
@@ -47,7 +47,6 @@ class CanvasLmsAPI < Sinatra::Base
     def auth(*types)
       condition do
         if (types.include? :teacher) && !@current_teacher
-          # session[:redirect] = request.env['REQUEST_URI']
           flash[:error] = 'You must be logged in to view that page'
           redirect '/'
         elsif (types.include? :token_set) && !@token_set
@@ -89,10 +88,11 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   post '/new_teacher', auth: [:teacher] do
-    if params['password'] == params['password_confirm']
+    create_password_form = CreatePasswordForm.new(params)
+    if create_password_form.valid?
       create_password(params['password'])
     else
-      flash[:error] = 'Please write the same password twice'
+      flash[:error] = "#{create_password_form.error_message}."
       redirect '/welcome'
     end
   end
@@ -112,7 +112,7 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   get '/tokens/:access_key/?', auth: [:teacher, :token_set] do
-    token = cross_tokens(params['access_key'])
+    token = you_shall_not_pass!(params['access_key'])
     courses = GetCoursesFromCanvas.new(token.canvas_api(@token_set),
                                        token.canvas_token(@token_set))
     courses = courses.call
@@ -121,17 +121,19 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   delete '/tokens/:access_key/?', auth: [:teacher, :token_set] do
-    token = cross_tokens(params['access_key'])
+    token = you_shall_not_pass!(params['access_key'])
     delete_token(token)
     redirect '/tokens'
   end
 
   get '/tokens/:access_key/:course_id/:data/?',
       auth: [:teacher, :token_set] do
-    token = cross_tokens(params['access_key'])
-    arr = [token.canvas_api(@token_set), token.canvas_token(@token_set),
-           params['course_id'], params['data']]
-    service_object = service_object_traffic_controller(params, arr)
+    token = you_shall_not_pass!(params['access_key'])
+    data_for_api = DataForApiCall.new(
+      token.canvas_api(@token_set), token.canvas_token(@token_set),
+      params['course_id'], params['data']
+    )
+    service_object = service_object_traffic_controller(params, data_for_api)
     result = service_object.call
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }
