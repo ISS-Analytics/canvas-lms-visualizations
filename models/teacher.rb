@@ -1,4 +1,4 @@
-require_relative '../helpers/model_helpers'
+require_relative './model_helpers'
 
 # Class for Canvas teachers
 class Teacher < ActiveRecord::Base

@@ -1,4 +1,4 @@
-require 'sinatra'
+require 'sinatra/base'
 require 'config_env'
 require 'rack/ssl-enforcer'
 require 'httparty'
@@ -11,11 +11,13 @@ require 'ap'
 require 'concurrent'
 require 'jwt'
 require 'json'
+require 'tilt/kramdown'
 
 configure :development, :test do
   require 'hirb'
-  ConfigEnv.path_to_config("#{__dir__}/config/config_env.rb")
   Hirb.enable
+  absolute_path = File.absolute_path './config/config_env.rb'
+  ConfigEnv.path_to_config(absolute_path)
 end
 
 # Visualizations for Canvas LMS Classes
@@ -27,14 +29,17 @@ class CanvasLmsAPI < Sinatra::Base
   GOOGLE_OAUTH = 'https://accounts.google.com/o/oauth2/auth'
   GOOGLE_PARAMS = "?response_type=code&client_id=#{ENV['CLIENT_ID']}"
 
+  set :views, File.expand_path('../../views', __FILE__)
+  set :public_folder, File.expand_path('../../public', __FILE__)
+  set :env_dir, File.expand_path('../../config', __FILE__)
+
   configure :production do
     use Rack::SslEnforcer
     set :session_secret, ENV['MSG_KEY']
   end
 
   configure do
-    # TODO: Session Variable Session::Pool
-    use Rack::Session::Cookie, secret: settings.session_secret
+    use Rack::Session::Pool, secret: settings.session_secret
     use Rack::Flash, sweep: true
   end
 
@@ -63,9 +68,8 @@ class CanvasLmsAPI < Sinatra::Base
   end
 
   get '/oauth2callback_gmail/?' do
-    callback_json = callback_gmail(params).to_json
-    access_token = JSON.parse(callback_json)['access_token']
-    email = teacher_email(access_token)
+    access_token = CallbackGmail.new(params, request).call
+    email = GoogleTeacherEmail.new(access_token).call
     find_teacher(email) ? login_teacher(email) : register_teacher(email)
   end
 
