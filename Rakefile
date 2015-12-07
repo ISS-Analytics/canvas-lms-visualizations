@@ -69,3 +69,12 @@ namespace :heroku do
                         :transfer_config_env] do
   end
 end
+
+desc 'Generate DB & MSG keys'
+task :keys_for_config do
+  2.times do
+    key = RbNaCl::Random.random_bytes(RbNaCl::SecretBox.key_bytes)
+    print 'either key: '
+    puts Base64.urlsafe_encode64(key)
+  end
+end
