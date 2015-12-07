@@ -3,7 +3,8 @@
 # Replace [*] with key
 
 config_env :[ENV_NAME] do
-  set :DB_KEY, "[database encryption keys encoded with base64 urlsafe encoding]"
-  set :ACCESS_TOKEN, [Canvas access token]
+  set :DB_KEY, [database encryption keys encoded with base64 urlsafe encoding]
   set :MSG_KEY, [Session secret key]
+  set :CLIENT_ID, [GOOGLE DEVELOPER CLIENT ID]
+  set :CLIENT_SECRET, [GOOGLE DEVELOPER CLIENT SECRET]
 end
