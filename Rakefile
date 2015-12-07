@@ -5,8 +5,6 @@ require 'rake/testtask'
 
 task default: [:local_and_running]
 
-# TODO: Instructions for Config Env secrets
-
 desc 'Run specs'
 Rake::TestTask.new(:spec) do |t|
   t.pattern = 'spec/*_spec.rb'
