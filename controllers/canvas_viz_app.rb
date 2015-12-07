@@ -129,11 +129,11 @@ class CanvasVisualizationApp < Sinatra::Base
   get '/tokens/:access_key/:course_id/:data/?',
       auth: [:teacher, :token_set] do
     token = you_shall_not_pass!(params['access_key'])
-    data_for_api = DataForApiCall.new(
+    params_for_api = ParamsForCanvasApi.new(
       token.canvas_api(@token_set), token.canvas_token(@token_set),
       params['course_id'], params['data']
     )
-    service_object = service_object_traffic_controller(params, data_for_api)
+    service_object = service_object_traffic_controller(params, params_for_api)
     result = service_object.call
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }

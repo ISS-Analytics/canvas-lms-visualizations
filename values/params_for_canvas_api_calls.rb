@@ -1,5 +1,5 @@
 # Value object that goes to canvas api calls
-class DataForApiCall
+class ParamsForCanvasApi
   attr_accessor :canvas_api, :canvas_token, :course_id, :data
 
   def initialize(canvas_api, canvas_token, course_id, data)
