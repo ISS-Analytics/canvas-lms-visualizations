@@ -22,9 +22,6 @@ To generate `MSG_KEY` and `DB_KEY` for the config_env, simply run `rake keys_for
 
 ### Gems & DB
 
-To get up and running on localhost, simply run `rake`
+To get up and running on localhost, run `rake` from the terminal.
 - This will install the required gems and setup the database.
 - The Rakefile has additional commands to help with deployment to heroku.
-
-### Rounding up
-And `rackup` should set you on your way :)
