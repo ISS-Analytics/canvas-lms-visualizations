@@ -6,7 +6,6 @@ require 'slim'
 require 'slim/include'
 require 'rack-flash'
 require 'chartkick'
-# require 'groupdate'
 require 'ap'
 require 'concurrent'
 require 'jwt'
@@ -52,14 +51,13 @@ class CanvasVisualizationApp < Sinatra::Base
         elsif (types.include? :token_set) && !@token_set
           flash[:error] = 'You must enter a password to view that page'
           redirect '/welcome'
-        end
-      end
+        end; end
     end
   end
 
   before do
-    @current_teacher = find_user_by_token(session[:auth_token])
-    @token_set = avail_tokens_for_user(session[:unleash_token])
+    @current_teacher = GetTeacherInSessionVar.new(session[:auth_token]).call
+    @token_set = GetPasswordInSessionVar.new(session[:unleash_token]).call
   end
 
   get '/' do
@@ -69,7 +67,13 @@ class CanvasVisualizationApp < Sinatra::Base
   get '/oauth2callback_gmail/?' do
     access_token = CallbackGmail.new(params, request).call
     email = GoogleTeacherEmail.new(access_token).call
-    find_teacher(email) ? login_teacher(email) : register_teacher(email)
+    session[:auth_token] =
+      if find_teacher(email)
+        StoreEmailAsSessionVar.new(email).call
+      else
+        SaveTeacher.new(email).call
+      end
+    redirect '/welcome'
   end
 
   get '/logout/?' do
@@ -84,13 +88,27 @@ class CanvasVisualizationApp < Sinatra::Base
   end
 
   post '/retrieve', auth: [:teacher] do
-    retrieve(params['password'])
+    password = params['password']
+    teacher = VerifyPassword.new(@current_teacher, password).call
+    if teacher == 'no password found'
+      flash[:error] = 'You\'re yet to save a password.'
+      redirect '/welcome'
+    elsif teacher.nil?
+      flash[:error] = 'Wrong Password'
+      redirect '/welcome'
+    end
+    session[:unleash_token] =
+      SavePasswordToSessionVar.new(password, teacher.token_salt).call
+    redirect '/tokens'
   end
 
   post '/new_teacher', auth: [:teacher] do
     create_password_form = CreatePasswordForm.new(params)
     if create_password_form.valid?
-      create_password(params['password'])
+      session[:unleash_token] = SaveTeacherPassword.new(
+        @current_teacher.email, params['password']
+      ).call
+      redirect '/tokens'
     else
       flash[:error] = "#{create_password_form.error_message}."
       redirect '/welcome'
@@ -98,12 +116,12 @@ class CanvasVisualizationApp < Sinatra::Base
   end
 
   get '/tokens/?', auth: [:teacher, :token_set] do
-    tokens = list_tokens
+    tokens = ListTokens.new(@current_teacher, @token_set).call
     slim :tokens, locals: { tokens: tokens }
   end
 
   post '/tokens/?', auth: [:teacher, :token_set] do
-    result = save_token(params['token'], params['url'])
+    result = SaveToken.new(@current_teacher, @token_set, params).call
     if result.include?('saved')
       flash[:notice] = "#{result}"
     else flash[:error] = "#{result}"
@@ -122,7 +140,11 @@ class CanvasVisualizationApp < Sinatra::Base
 
   delete '/tokens/:access_key/?', auth: [:teacher, :token_set] do
     token = you_shall_not_pass!(params['access_key'])
-    delete_token(token)
+    if DeleteToken.new(token).call
+      flash[:notice] = 'Successfully deleted!'
+    else
+      flash[:error] = 'This is a strange one'
+    end
     redirect '/tokens'
   end
 

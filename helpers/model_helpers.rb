@@ -23,11 +23,4 @@ module ModelHelper
   def secret_box
     RbNaCl::SecretBox.new(key)
   end
-
-  # def enc
-  #   value = base_64_encode(RbNaCl::Random.random_bytes(dec.nonce_bytes))
-  #   @nonce ||= nonce(special_key, value)
-  #   self.nonce = @nonce
-  #   dec
-  # end
 end
