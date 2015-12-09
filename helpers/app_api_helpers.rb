@@ -1,4 +1,4 @@
-# Helper module for app, handling API
+# Helper module for app, handling Canvas API
 module AppAPIHelper
   def service_object_traffic_controller(params, params_for_api)
     if params['data'] == 'discussion_topics'
