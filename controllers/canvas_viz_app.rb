@@ -121,10 +121,15 @@ class CanvasVisualizationApp < Sinatra::Base
   end
 
   post '/tokens/?', auth: [:teacher, :token_set] do
-    result = SaveToken.new(@current_teacher, @token_set, params).call
-    if result.include?('saved')
-      flash[:notice] = "#{result}"
-    else flash[:error] = "#{result}"
+    save_token_form = SaveTokenForm.new(params)
+    if save_token_form.valid?
+      result = SaveToken.new(@current_teacher, @token_set, params).call
+      if result.include?('saved')
+        flash[:notice] = "#{result}"
+      else flash[:error] = "#{result}"
+      end
+    else
+      flash[:error] = "#{save_token_form.error_message}."
     end
     redirect '/tokens'
   end
