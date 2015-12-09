@@ -2,14 +2,123 @@ include scripts
 h2 Course Participation
 - views = {}
 - data.each { |activity| views[activity['date']] = activity['views'] }
-h3 Views
 - views = Hash[views.sort]
-== column_chart views
-h3 Participations
 - participations = Hash.new(0)
 - data.each { |activity| participations[activity['date']] = activity['participations'] }
 - participations = Hash[participations.sort]
+div id='container'
+div id='assignment-box-percent'
+- views_participation = {}
+h3 Participations
 == column_chart participations
-/ unless activity['date'].include? '2015' - ap data[0]
-- ap views
-- ap participations
+h3 Views
+== column_chart views
+- data.each do |activity| \
+    views_participation[activity['date']] = [activity['views'], activity['participations']] \
+  end
+- views_participation_dow = Hash.new { |hash, key| hash[key] = [] }
+- views_participation.each do |date, _view_par| \
+    dow = Date.parse(date).strftime('%A'); \
+    views_participation_dow[dow] << views_participation[date]; \
+  end
+- ap views_participation_dow
+
+javascript:
+  var sunday = JSON.parse("#{views_participation_dow['Sunday']}");
+  var monday = JSON.parse("#{views_participation_dow['Monday']}");
+  var tuesday = JSON.parse("#{views_participation_dow['Tuesday']}");
+  var wednesday = JSON.parse("#{views_participation_dow['Wednesday']}");
+  var thursday = JSON.parse("#{views_participation_dow['Thursday']}");
+  var friday = JSON.parse("#{views_participation_dow['Friday']}");
+  var saturday = JSON.parse("#{views_participation_dow['Saturday']}");
+  $(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'Course Participation versus Views by Day of Week'
+        },
+        subtitle: {
+            text: 'These make no sense to me with the data I have'
+        },
+        xAxis: {
+            title: {
+                enabled: true,
+                text: 'Views'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            title: {
+                text: 'Participation'
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'left',
+            verticalAlign: 'top',
+            x: 100,
+            y: 70,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+            borderWidth: 1
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Day of Week: {series.name}</b><br>',
+                    pointFormat: '{point.x} views, {point.y} participations'
+                }
+            }
+        },
+        series: [{
+            name: 'Sunday',
+            color: 'red',
+            data: sunday
+        }, {
+            name: 'Monday',
+            color: 'orange',
+            data: monday
+        }, {
+            name: 'Tuesday',
+            color: 'yellow',
+            data: tuesday
+        }, {
+            name: 'Wednesday',
+            color: 'green',
+            data: wednesday
+        }, {
+            name: 'Thursday',
+            color: 'blue',
+            data: thursday
+        }, {
+            name: 'Friday',
+            color: 'indigo',
+            data: friday
+        }, {
+            name: 'Saturday',
+            color: 'violet',
+            data: saturday
+        }]
+    });
+  });
