@@ -98,12 +98,12 @@ class CanvasVisualizationApp < Sinatra::Base
   end
 
   get '/tokens/?', auth: [:teacher, :token_set] do
-    tokens = list_tokens
+    tokens = ListTokens.new(@current_teacher, @token_set).call
     slim :tokens, locals: { tokens: tokens }
   end
 
   post '/tokens/?', auth: [:teacher, :token_set] do
-    result = save_token(params['token'], params['url'])
+    result = SaveToken.new(@current_teacher, @token_set, params).call
     if result.include?('saved')
       flash[:notice] = "#{result}"
     else flash[:error] = "#{result}"
@@ -122,7 +122,11 @@ class CanvasVisualizationApp < Sinatra::Base
 
   delete '/tokens/:access_key/?', auth: [:teacher, :token_set] do
     token = you_shall_not_pass!(params['access_key'])
-    delete_token(token)
+    if DeleteToken.new(token).call
+      flash[:notice] = 'Successfully deleted!'
+    else
+      flash[:error] = 'This is a strange one'
+    end
     redirect '/tokens'
   end
 
