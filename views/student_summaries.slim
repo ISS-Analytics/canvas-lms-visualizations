@@ -3,6 +3,7 @@ include scripts
 - tardiness = {}
 - page_views = {}
 - participations = {}
+- page_part_scatter = {}
 - tardiness[:missing] = {}
 - tardiness[:late] = {}
 - tardiness[:on_time] = {}
@@ -14,6 +15,7 @@ include scripts
     tardiness[:floating]["user_#{user['id']}"] = user['tardiness_breakdown']['floating']; \
     page_views["user_#{user['id']}"] = user['page_views']; \
     participations["user_#{user['id']}"] = user['participations']; \
+    page_part_scatter["user_#{user['id']}"] = [user['page_views'], user['participations']] \
   end
 h3 Student Tardiness
 - tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
@@ -21,7 +23,68 @@ h3 Student Tardiness
           { name: 'Floating', data: tardiness[:floating] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
 == bar_chart tard, stacked: true
+div id='container'
 h3 Student Page Views Count
 == bar_chart page_views
 h3 Student Participation Count
 == bar_chart participations
+
+javascript:
+  var keys = JSON.parse("#{page_part_scatter.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var values = JSON.parse("#{page_part_scatter.values}");
+  $(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'Participation versus Views by Student'
+        },
+        subtitle: {
+            text: 'These make no sense to me with the data I have'
+        },
+        xAxis: {
+            title: {
+                enabled: true,
+                text: 'Views'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            title: {
+                text: 'Participation'
+            }
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Day of Week: {series.name}</b><br>',
+                    pointFormat: '{point.x} views, {point.y} participations'
+                }
+            }
+        },
+        series: [{
+            name: keys,
+            data: values
+        }]
+    });
+  });
