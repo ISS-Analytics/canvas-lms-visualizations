@@ -1,5 +1,5 @@
 include scripts
-- ap data
+/ - ap data
 - tardiness = {}
 - page_views = {}
 - participations = {}
@@ -18,10 +18,11 @@ include scripts
     page_part_scatter["user_#{user['id']}"] = [user['page_views'], user['participations']] \
   end
 h3 Student Tardiness
-- tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
-          { name: 'Late Submissions', data: tardiness[:late] }, \
+- tard = [{ name: 'Late Submissions', data: tardiness[:late].sort_by { |user, value| value }.reverse.to_h }, \
+          { name: 'Missing Submissions', data: tardiness[:missing] }, \
           { name: 'Floating', data: tardiness[:floating] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
+- ap tard
 == bar_chart tard, stacked: true
 div id='container'
 h3 Student Page Views Count

@@ -23,7 +23,8 @@ include scripts
   - ap discussions
   / == line_chart discussions_id, discrete: true
   h3 Dicussions by Participant
-  == bar_chart discussions_id
+  - discussion_height = discussions_id.length * 30
+  == bar_chart discussions_id, height: "#{discussion_height}px"
   - ap discussions_id
   - ap JSON.parse(data[0])
 - else

@@ -40,7 +40,7 @@ h3 Tardiness
 / - ap data[10]
 / - ap tardiness
 / - ap scores
-div id='assignment-box'
+/ div id='assignment-box'
 - scores_percent = {}
 - data.each { |assignment| scores_percent[assignment['title']] =[\
               assignment['min_score'], assignment['first_quartile'],\
@@ -53,6 +53,7 @@ div id='assignment-box'
     end.compact \
   end
 div id='assignment-box-percent'
+div id='assignment-box-flipped'
 
 javascript:
   var cat = JSON.parse("#{scores.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
@@ -60,31 +61,34 @@ javascript:
   var cat_percent = JSON.parse("#{scores_percent.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
   var values_percent = JSON.parse("#{scores_percent.values}");
   $(function () {
-    $('#assignment-box').highcharts({
+    $('#assignment-box-flipped').highcharts({
         chart: {
-            type: 'boxplot'
+            type: 'boxplot',
+            inverted: true
         },
         title: {
-            text: 'Box plot for Assignment Scores'
+            text: 'Box plot for Assignment Scores % (Flipped)'
         },
         legend: {
             enabled: false
         },
         xAxis: {
-            categories: cat,
+            categories: cat_percent,
             title: {
                 text: 'Assignments'
             }
         },
         yAxis: {
             min: 0,
+            max: 100,
             title: {
-                text: 'Raw Scores'
-            }
+                text: 'Percent Scores'
+            },
         },
         series: [{
             name: 'Observations',
-            data: values,
+            data: values_percent,
+            color: 'blue',
             tooltip: {
                 headerFormat: '<em>Assignment: {point.key}</em><br/>'
             }
@@ -92,12 +96,7 @@ javascript:
             name: 'Outlier',
             color: Highcharts.getOptions().colors[0],
             type: 'scatter',
-            data: [ // x, y positions where 0 is the first category
-                // [0, 644],
-                // [4, 718],
-                // [4, 951],
-                // [4, 969]
-            ],
+            data: [],
             marker: {
                 fillColor: 'white',
                 lineWidth: 1,
@@ -141,12 +140,7 @@ javascript:
             name: 'Outlier',
             color: Highcharts.getOptions().colors[0],
             type: 'scatter',
-            data: [ // x, y positions where 0 is the first category
-                // [0, 644],
-                // [4, 718],
-                // [4, 951],
-                // [4, 969]
-            ],
+            data: [],
             marker: {
                 fillColor: 'white',
                 lineWidth: 1,
