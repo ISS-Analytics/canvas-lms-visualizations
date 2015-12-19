@@ -8,10 +8,16 @@ h2 Course Participation
 - participations = Hash[participations.sort]
 div id='container'
 - v_p = [{name: 'Participations', data: participations}, {name: 'Views', data: views}]
-h3 Participations & Views (Stacked)
-== column_chart v_p, stacked: true
-h3 Participations & Views (Discrete)
-== column_chart v_p, discrete: true
+div align='center'
+  input type='radio' class='part_view' name='part-view' value='stacked' Stacked
+  input type='radio' class='part_view' name='part-view' value='discrete' Discrete
+  input type='radio' class='part_view' name='part-view' value='both' checked='true' Both
+div id='column-chart-stacked'
+  h3 Participations & Views (Stacked)
+  == column_chart v_p, stacked: true
+div id='column-chart-discrete'
+  h3 Participations & Views (Discrete)
+  == column_chart v_p, discrete: true
 - views_participation = {}
 h3 Participations
 == column_chart participations
@@ -126,3 +132,29 @@ javascript:
         }]
     });
   });
+
+  var radios = document.getElementsByClassName('part_view'),
+      stacked_div = document.getElementById('column-chart-stacked'),
+      discrete_div = document.getElementById('column-chart-discrete');
+
+  function changeChart() {
+      "use strict";
+      if (radios[0].checked == true) {
+          stacked_div.style.display = 'inline';
+          discrete_div.style.display = 'none';
+      } else if (radios[1].checked == true) {
+          stacked_div.style.display = 'none';
+          discrete_div.style.display = 'inline';
+      } else if (radios[2].checked == true) {
+          stacked_div.style.display = 'inline';
+          discrete_div.style.display = 'inline';
+      }
+  }
+
+  var radio,
+      idx;
+
+  for (idx = 0; idx < radios.length; idx += 1) {
+      radio = radios[idx];
+      radio.onclick = changeChart;
+  }

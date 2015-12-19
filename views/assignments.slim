@@ -52,6 +52,10 @@ h3 Tardiness
       value = (value / values[5].to_f * 100).round 2 unless index == 5 \
     end.compact \
   end
+div align='center'
+  input type='radio' class='assignment' name='assignment' value='normal' Regular
+  input type='radio' class='assignment' name='assignment' value='flipped' Flipped
+  input type='radio' class='assignment' name='assignment' value='both' checked='true' Both
 div id='assignment-box-percent'
 div id='assignment-box-flipped'
 
@@ -79,8 +83,8 @@ javascript:
             }
         },
         yAxis: {
-            min: 0,
-            max: 100,
+            min: -10,
+            max: 110,
             title: {
                 text: 'Percent Scores'
             },
@@ -152,3 +156,29 @@ javascript:
         }]
     });
   });
+
+  var radios = document.getElementsByClassName('assignment'),
+      normal_div = document.getElementById('assignment-box-percent'),
+      flipped_div = document.getElementById('assignment-box-flipped');
+
+  function changeChart() {
+      "use strict";
+      if (radios[0].checked == true) {
+          normal_div.style.display = 'inline';
+          flipped_div.style.display = 'none';
+      } else if (radios[1].checked == true) {
+          normal_div.style.display = 'none';
+          flipped_div.style.display = 'inline';
+      } else if (radios[2].checked == true) {
+          normal_div.style.display = 'inline';
+          flipped_div.style.display = 'inline';
+      }
+  }
+
+  var radio,
+      idx;
+
+  for (idx = 0; idx < radios.length; idx += 1) {
+      radio = radios[idx];
+      radio.onclick = changeChart;
+  }
