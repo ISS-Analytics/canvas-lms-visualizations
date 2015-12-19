@@ -22,13 +22,15 @@ h3 Student Tardiness
           { name: 'Missing Submissions', data: tardiness[:missing] }, \
           { name: 'Floating', data: tardiness[:floating] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
-- ap tard
-== bar_chart tard, stacked: true
+- summaries_height = [tardiness[:late].length, tardiness[:missing].length, tardiness[:floating].length, tardiness[:on_time].length].max * 30
+== bar_chart tard, stacked: true, height: "#{summaries_height}px"
 div id='container'
+- pages_height = page_views.length * 30
+- participations_height = participations.length * 30
 h3 Student Page Views Count
-== bar_chart page_views
+== bar_chart page_views, height: "#{pages_height}px"
 h3 Student Participation Count
-== bar_chart participations
+== bar_chart participations, height: "#{participations_height}px"
 
 javascript:
   var keys = JSON.parse("#{page_part_scatter.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
