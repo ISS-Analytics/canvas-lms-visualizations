@@ -6,8 +6,25 @@ h2 Course Participation
 - participations = Hash.new(0)
 - data.each { |activity| participations[activity['date']] = activity['participations'] }
 - participations = Hash[participations.sort]
-div id='container'
 - v_p = [{name: 'Participations', data: participations}, {name: 'Views', data: views}]
+- views_participation = {}
+- data.each do |activity| \
+    views_participation[activity['date']] = [activity['views'], activity['participations']] \
+  end
+- views_participation_dow = Hash.new { |hash, key| hash[key] = [] }
+- views_participation.each do |date, _view_par| \
+    dow = Date.parse(date).strftime('%A'); \
+    views_participation_dow[dow] << views_participation[date]; \
+  end
+- views_by_day = {}
+- participations_by_day = {}
+- Date::DAYNAMES.each { |day| views_by_day[day] = 0; participations_by_day[day] = 0 }
+- views_participation_dow.each do |day, view_par| \
+    views_by_day[day] = views_participation_dow[day].map { |arr| arr[0] }.reduce(:+); \
+    participations_by_day[day] = views_participation_dow[day].map { |arr| arr[1] }.reduce(:+); \
+  end
+div id='views-by-day'
+div id='container'
 div align='center'
   input type='radio' class='part_view' name='part-view' value='stacked' Stacked
   input type='radio' class='part_view' name='part-view' value='discrete' Discrete
@@ -18,20 +35,10 @@ div id='column-chart-stacked'
 div id='column-chart-discrete'
   h3 Participations & Views (Discrete)
   == column_chart v_p, discrete: true
-- views_participation = {}
-h3 Participations
-== column_chart participations
-h3 Views
-== column_chart views
-- data.each do |activity| \
-    views_participation[activity['date']] = [activity['views'], activity['participations']] \
-  end
-- views_participation_dow = Hash.new { |hash, key| hash[key] = [] }
-- views_participation.each do |date, _view_par| \
-    dow = Date.parse(date).strftime('%A'); \
-    views_participation_dow[dow] << views_participation[date]; \
-  end
-/ - ap views_participation_dow
+/ h3 Participations
+/ == column_chart participations
+/ h3 Views
+/ == column_chart views
 
 javascript:
   var sunday = JSON.parse("#{views_participation_dow['Sunday']}");
@@ -41,6 +48,9 @@ javascript:
   var thursday = JSON.parse("#{views_participation_dow['Thursday']}");
   var friday = JSON.parse("#{views_participation_dow['Friday']}");
   var saturday = JSON.parse("#{views_participation_dow['Saturday']}");
+  var dow = JSON.parse("#{views_by_day.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var views_by_day = JSON.parse("#{views_by_day.values}");
+  var participations_by_day = JSON.parse("#{participations_by_day.values}");
   $(function () {
     $('#container').highcharts({
         chart: {
@@ -67,16 +77,6 @@ javascript:
                 text: 'Participation'
             }
         },
-        // legend: {
-        //     layout: 'vertical',
-        //     align: 'left',
-        //     verticalAlign: 'top',
-        //     x: 100,
-        //     y: 70,
-        //     floating: true,
-        //     backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
-        //     borderWidth: 1
-        // },
         plotOptions: {
             scatter: {
                 marker: {
@@ -129,6 +129,48 @@ javascript:
             name: 'Saturday',
             color: 'violet',
             data: saturday
+        }]
+    });
+  });
+  
+  $(function () {
+    $('#views-by-day').highcharts({
+        title: {
+            text: 'Views & Participation by Day of Week',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Aggregate Course Level Data',
+            x: -20
+        },
+        xAxis: {
+            categories: dow
+        },
+        yAxis: {
+            title: {
+                text: 'Views & Participation'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        // tooltip: {
+        //     valueSuffix: '°C'
+        // },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Views',
+            data: views_by_day
+        }, {
+            name: 'Participations',
+            data: participations_by_day
         }]
     });
   });
