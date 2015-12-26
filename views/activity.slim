@@ -24,11 +24,11 @@ h2 Course Participation
     participations_by_day[day] = views_participation_dow[day].map { |arr| arr[1] }.reduce(:+); \
   end
 div id='views-by-day'
-div id='container'
+
+/ div id='container'
 div align='center'
   input type='radio' class='part_view' name='part-view' value='stacked' Stacked
   input type='radio' class='part_view' name='part-view' value='discrete' Discrete
-  input type='radio' class='part_view' name='part-view' value='both' checked='true' Both
 div id='column-chart-stacked'
   h3 Participations & Views (Stacked)
   == column_chart v_p, stacked: true
@@ -187,9 +187,6 @@ javascript:
       } else if (radios[1].checked == true) {
           stacked_div.style.display = 'none';
           discrete_div.style.display = 'inline';
-      } else if (radios[2].checked == true) {
-          stacked_div.style.display = 'inline';
-          discrete_div.style.display = 'inline';
       }
   }
 
@@ -200,3 +197,10 @@ javascript:
       radio = radios[idx];
       radio.onclick = changeChart;
   }
+
+  function clickRegular() {
+      radios[1].checked = true;
+      stacked_div.style.display = 'none';
+  }
+
+  window.addEventListener('load', setTimeout(clickRegular, 1000));
