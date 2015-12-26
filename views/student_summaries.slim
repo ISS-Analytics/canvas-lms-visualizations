@@ -23,14 +23,23 @@ h3 Student Tardiness
           { name: 'Floating', data: tardiness[:floating] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
 - summaries_height = [tardiness[:late].length, tardiness[:missing].length, tardiness[:floating].length, tardiness[:on_time].length].max * 30
-== bar_chart tard, stacked: true, height: "#{summaries_height}px"
-div id='container'
+== bar_chart tard, stacked: true, height: "#{summaries_height}px", colors: ['#ED4337', '#434348', '#90ed7d', '#7cb5ec']
+/ div id='container'
 - pages_height = page_views.length * 30
 - participations_height = participations.length * 30
-h3 Student Page Views Count
-== bar_chart page_views, height: "#{pages_height}px"
-h3 Student Participation Count
-== bar_chart participations, height: "#{participations_height}px"
+- views_pars_height = [page_views.length, participations.length].max * 30
+- views_pars = [{name: 'Views', data: page_views}, {name: 'Participations', data: participations}]
+div align='center'
+  input type='radio' class='part_view' name='part-view' value='stacked' Stacked
+  input type='radio' class='part_view' name='part-view' value='discrete' Discrete
+div id='bar-chart-stacked'
+  h3 Page Views & Participations by Student (Stacked)
+  / == bar_chart page_views, height: "#{pages_height}px"
+  == bar_chart views_pars, stacked: true, height: "#{views_pars_height}px"
+div id='bar-chart-discrete'
+  h3 Page Views & Participations by Student (Discrete)
+  / == bar_chart participations, height: "#{participations_height}px"
+  == bar_chart views_pars, discrete: true, height: "#{views_pars_height * 1.5}px"
 
 javascript:
   var keys = JSON.parse("#{page_part_scatter.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
@@ -91,3 +100,33 @@ javascript:
         }]
     });
   });
+
+  var radios = document.getElementsByClassName('part_view'),
+      stacked_div = document.getElementById('bar-chart-stacked'),
+      discrete_div = document.getElementById('bar-chart-discrete');
+
+  function changeChart() {
+      "use strict";
+      if (radios[0].checked == true) {
+          stacked_div.style.display = 'inline';
+          discrete_div.style.display = 'none';
+      } else if (radios[1].checked == true) {
+          stacked_div.style.display = 'none';
+          discrete_div.style.display = 'inline';
+      }
+  }
+
+  var radio,
+      idx;
+
+  for (idx = 0; idx < radios.length; idx += 1) {
+      radio = radios[idx];
+      radio.onclick = changeChart;
+  }
+
+  function clickRegular() {
+      radios[1].checked = true;
+      stacked_div.style.display = 'none';
+  }
+
+  window.addEventListener('load', setTimeout(clickRegular, 1000));

@@ -22,7 +22,7 @@ h3 Tardiness
           { name: 'Late Submissions', data: tardiness[:late] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
 / == area_chart tard, discrete: true
-== column_chart tard, stacked: true
+== column_chart tard, stacked: true, colors: ['#ED4337', '#434348', '#90ed7d']
 / h3 Median Scores as percentage of Possible Points
 / - scores = {}
 / - data.each { |assignment| scores[assignment['title']] = [assignment['median'], assignment['points_possible']] }
@@ -55,7 +55,6 @@ h3 Tardiness
 div align='center'
   input type='radio' class='assignment' name='assignment' value='normal' Regular
   input type='radio' class='assignment' name='assignment' value='flipped' Flipped
-  input type='radio' class='assignment' name='assignment' value='both' checked='true' Both
 div id='assignment-box-percent'
 div id='assignment-box-flipped'
 
@@ -92,7 +91,6 @@ javascript:
         series: [{
             name: 'Observations',
             data: values_percent,
-            color: 'blue',
             tooltip: {
                 headerFormat: '<em>Assignment: {point.key}</em><br/>'
             }
@@ -169,9 +167,6 @@ javascript:
       } else if (radios[1].checked == true) {
           normal_div.style.display = 'none';
           flipped_div.style.display = 'inline';
-      } else if (radios[2].checked == true) {
-          normal_div.style.display = 'inline';
-          flipped_div.style.display = 'inline';
       }
   }
 
@@ -182,3 +177,10 @@ javascript:
       radio = radios[idx];
       radio.onclick = changeChart;
   }
+
+  function clickRegular() {
+      radios[1].checked = true;
+      normal_div.style.display = 'none';
+  }
+
+  window.addEventListener('load', setTimeout(clickRegular, 1000));

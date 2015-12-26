@@ -28,7 +28,7 @@ include scripts
   - scores = [{ name: 'Lowest Score', data: scores[:low] }, \
               { name: 'Average Score', data: scores[:average] }, \
               { name: 'Highest Score', data: scores[:high] }]
-  == column_chart scores, discrete: true
+  == column_chart scores, discrete: true, colors: ['#ED4337', '#434348', '#90ed7d']
   / - scoreD = {}
   / - scoreD[:high] = {}
   / - scoreD[:low] = {}
