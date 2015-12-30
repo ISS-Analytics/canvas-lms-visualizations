@@ -1,4 +1,5 @@
 include scripts
+script src='//code.highcharts.com/modules/exporting.js'
 - DATE = 0..9 # Use 9 to group by date, -1 to leave times in there
 - unless data.all? { |dat| dat.nil? || dat.empty? || dat == 'null' }
   - comments = data.map { |dat| JSON.parse(dat)['view'] unless dat == 'null' }
@@ -20,12 +21,9 @@ include scripts
   - discussions = Hash[discussions.sort]
   == column_chart discussions
   - discussions_id = Hash[discussions_id.sort_by { |u, c| c }.reverse]
-  - ap discussions
   / == line_chart discussions_id, discrete: true
   h3 Dicussions by Participant
   - discussion_height = discussions_id.length * 30
   == bar_chart discussions_id, height: "#{discussion_height}px"
-  - ap discussions_id
-  - ap JSON.parse(data[0])
 - else
   br No discussions available
