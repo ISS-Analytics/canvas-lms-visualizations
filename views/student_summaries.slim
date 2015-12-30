@@ -1,5 +1,5 @@
 include scripts
-/ - ap data
+script src='//code.highcharts.com/modules/exporting.js'
 - tardiness = {}
 - page_views = {}
 - participations = {}
@@ -29,6 +29,9 @@ h3 Student Tardiness
 - participations_height = participations.length * 30
 - views_pars_height = [page_views.length, participations.length].max * 30
 - views_pars = [{name: 'Views', data: page_views}, {name: 'Participations', data: participations}]
+- views_pars.each do |view_par| \
+    view_par[:data] = Hash[view_par[:data].sort_by { |u, c| c }.reverse]; \
+  end
 div align='center'
   input type='radio' class='part_view' name='part-view' value='stacked' Stacked
   input type='radio' class='part_view' name='part-view' value='discrete' Discrete

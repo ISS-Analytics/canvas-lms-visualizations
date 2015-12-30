@@ -1,160 +1,243 @@
 include scripts
-| #{data}
-- views = {}
-- participations = {}
+- days_of_week = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
+- views_dow = {}
+- participations_dow = {}
 - data.each do |user| \
+  unless user.nil? then \
     user.each do |user_id, v| \
       JSON.parse(v).each do |item, views_particapations| \
         if item == 'page_views' then \
           temp_store = Hash.new 0; \
-          views_particapations.each do |date, views| \
+          days_of_week.each { |day| temp_store[day] = 0 }; \
+          views_particapations.each do |date, view_count| \
             dow = Date.parse(date).strftime('%A'); \
-            temp_store[dow] += views; \
+            temp_store[dow] += view_count; \
           end; \
-          views[user_id] = temp_store; \
+          views_dow[user_id] = temp_store; \
         elsif item == 'participations' then \
           temp_store = Hash.new 0; \
+          days_of_week.each { |day| temp_store[day] = 0 }; \
           views_particapations.each do |hash| \
-            date = JSON.parse(hash)['created_at']; \
-            dow = Date.parse(date).strftime('%A'); \
-            temp_store[dow] += 1; \
+            day_of_week = hash.first[1]; \
+            dow = Date.parse(day_of_week).strftime('%A'); \
+            hash.each do |key, value| \
+              if key == 'url' then \
+                if value.include? 'discussion_topics' then \
+                  temp_store[dow] += 1; \
+                end; end; end; \
           end; \
-          participations[user_id] = temp_store; \
-        end \
-      end \
-    end \
+          participations_dow[user_id] = temp_store; \
+        end; end; end; end; \
   end
 
-- ap views
-- ap participations
-- ap data
+- views_dow.each do |k, v|
+  - views_dow[k] = [views_dow[k], participations_dow[k]]
 
-/ div id='actual'
-/ div id='container'
+div id="result"
+table id="table-sparkline"
+  thead
+    tr
+      th User
+      th Total View Count
+      th View Count by Day
+      th Discussion Total
+      th Dicussion Count by Day
+  tbody id="tbody-sparkline"
+    - views_dow.each do |k, v|
+      - unless v[1].values.all? { |vc| vc == 0 }
+        tr
+          th User_#{k}
+          td #{v[0].values.reduce(&:+)}
+          td data-sparkline="#{v[0].values.join(', ')} "
+          td #{v[1].values.reduce(&:+)}
+          td data-sparkline="#{v[1].values.join(', ')} "
 
-javascript:
-  $(function () {
-      $('#actual').highcharts({
-          chart: {
-              type: 'heatmap',
-              marginTop: 40,
-              marginBottom: 80,
-              plotBorderWidth: 1
-          },
-          title: {
-              text: 'Views per student per weekday'
-          },
-          xAxis: {
-              categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-          },
-          yAxis: {
-              categories: ['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura'],
-              title: null
-          },
-          colorAxis: {
-              min: 0,
-              minColor: '#FFFFFF',
-              maxColor: Highcharts.getOptions().colors[0]
-          },
-          legend: {
-              align: 'right',
-              layout: 'vertical',
-              margin: 0,
-              verticalAlign: 'top',
-              y: 25,
-              symbolHeight: 280
-          },
-          tooltip: {
-              formatter: function () {
-                  return '<b>' + this.series.yAxis.categories[this.point.y] + '</b> has had <br><b>' +
-                      this.point.value + '</b> views on <br><b>' + this.series.xAxis.categories[this.point.x] + '</b>';
-              }
-          },
-          series: [{
-              name: 'Sales per employee',
-              borderWidth: 1,
-              data: [[0, 0, 10], [0, 1, 19], [0, 2, 8], [0, 3, 24], [0, 4, 67],
-                     [0, 5, 92], [0, 6, 58], [0, 7, 78], [0, 8, 117], [0, 9, 48],
-                     [1, 0, 35], [1, 1, 15], [1, 2, 123], [1, 3, 64], [1, 4, 52],
-                     [1, 5, 72], [1, 6, 132], [1, 7, 114], [1, 8, 19], [1, 9, 16],
-                     [2, 0, 38], [2, 1, 5], [2, 2, 8], [2, 3, 117], [2, 4, 115],
-                     [2, 5, 88], [2, 6, 32], [2, 7, 12], [2, 8, 6], [2, 9, 120],
-                     [3, 0, 13], [3, 1, 44], [3, 2, 88], [3, 3, 98], [3, 4, 96],
-                     [3, 5, 31], [3, 6, 1], [3, 7, 82], [3, 8, 32], [3, 9, 30],
-                     [4, 0, 85], [4, 1, 97], [4, 2, 123], [4, 3, 64], [4, 4, 84],
-                     [4, 5, 47], [4, 6, 114], [4, 7, 31], [4, 8, 48], [4, 9, 91],
-                     [5, 0, 85], [5, 1, 97], [5, 2, 123], [5, 3, 64], [5, 4, 84],
-                     [5, 5, 72], [5, 6, 132], [5, 7, 114], [5, 8, 19], [5, 9, 16],
-                     [6, 0, 38], [6, 1, 5], [6, 2, 8], [6, 3, 117], [6, 4, 115],
-                     [6, 5, 92], [6, 6, 58], [6, 7, 78], [6, 8, 117], [6, 9, 48]],
-              dataLabels: {
-                  enabled: true,
-                  color: '#000000'
-              }
-          }]
-      });
-  });
+css:
+  #result {
+    text-align: right;
+    color: gray;
+    min-height: 2em;
+  }
+  #table-sparkline {
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  th {
+    font-weight: bold;
+    text-align: left;
+  }
+  td, th {
+    padding: 5px;
+    border-bottom: 1px solid silver;
+    height: 20px;
+  }
 
+  thead th {
+    border-top: 2px solid gray;
+    border-bottom: 2px solid gray;
+  }
+  .highcharts-tooltip>span {
+    background: white;
+    border: 1px solid silver;
+    border-radius: 3px;
+    box-shadow: 1px 1px 2px #888;
+    padding: 8px;
+  }
 
 javascript:
   $(function () {
-      $('#container').highcharts({
-          chart: {
-              type: 'heatmap',
-              marginTop: 40,
-              marginBottom: 80,
-              plotBorderWidth: 1
-          },
-          title: {
-              text: 'Views per student per weekday'
-          },
-          xAxis: {
-              categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-          },
-          yAxis: {
-              categories: ['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura'],
-              title: null
-          },
-          colorAxis: {
-              min: 0,
-              minColor: '#FFFFFF',
-              maxColor: Highcharts.getOptions().colors[0]
-          },
-          legend: {
-              align: 'right',
-              layout: 'vertical',
-              margin: 0,
-              verticalAlign: 'top',
-              y: 25,
-              symbolHeight: 280
-          },
-          tooltip: {
-              formatter: function () {
-                  return '<b>' + this.series.yAxis.categories[this.point.y] + '</b> has had <br><b>' +
-                      this.point.value + '</b> views on <br><b>' + this.series.xAxis.categories[this.point.x] + '</b>';
-              }
-          },
-          series: [{
-              name: 'Sales per employee',
-              borderWidth: 1,
-              data: [[0, 0, 10], [0, 1, 19], [0, 2, 8], [0, 3, 24], [0, 4, 67],
-                     [0, 5, 92], [0, 6, 58], [0, 7, 78], [0, 8, 117], [0, 9, 48],
-                     [1, 0, 35], [1, 1, 15], [1, 2, 123], [1, 3, 64], [1, 4, 52],
-                     [1, 5, 72], [1, 6, 132], [1, 7, 114], [1, 8, 19], [1, 9, 16],
-                     [2, 0, 38], [2, 1, 5], [2, 2, 8], [2, 3, 117], [2, 4, 115],
-                     [2, 5, 88], [2, 6, 32], [2, 7, 12], [2, 8, 6], [2, 9, 120],
-                     [3, 0, 13], [3, 1, 44], [3, 2, 88], [3, 3, 98], [3, 4, 96],
-                     [3, 5, 31], [3, 6, 1], [3, 7, 82], [3, 8, 32], [3, 9, 30],
-                     [4, 0, 85], [4, 1, 97], [4, 2, 123], [4, 3, 64], [4, 4, 84],
-                     [4, 5, 47], [4, 6, 114], [4, 7, 31], [4, 8, 48], [4, 9, 91],
-                     [5, 0, 85], [5, 1, 97], [5, 2, 123], [5, 3, 64], [5, 4, 84],
-                     [5, 5, 72], [5, 6, 132], [5, 7, 114], [5, 8, 19], [5, 9, 16],
-                     [6, 0, 38], [6, 1, 5], [6, 2, 8], [6, 3, 117], [6, 4, 115],
-                     [6, 5, 92], [6, 6, 58], [6, 7, 78], [6, 8, 117], [6, 9, 48]],
-              dataLabels: {
-                  enabled: true,
-                  color: '#000000'
-              }
-          }]
-      });
+    /**
+     * Create a constructor for sparklines that takes some sensible defaults and merges in the individual
+     * chart options. This function is also available from the jQuery plugin as $(element).highcharts('SparkLine').
+     */
+    Highcharts.SparkLine = function (a, b, c) {
+        var hasRenderToArg = typeof a === 'string' || a.nodeName,
+            options = arguments[hasRenderToArg ? 1 : 0],
+            defaultOptions = {
+                chart: {
+                    renderTo: (options.chart && options.chart.renderTo) || this,
+                    backgroundColor: null,
+                    borderWidth: 0,
+                    type: 'area',
+                    margin: [2, 0, 2, 0],
+                    width: 120,
+                    height: 20,
+                    style: {
+                        overflow: 'visible'
+                    },
+                    skipClone: true
+                },
+                title: {
+                    text: ''
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis: {
+                    labels: {
+                        enabled: false
+                    },
+                    title: {
+                        text: null
+                    },
+                    startOnTick: false,
+                    endOnTick: false,
+                    tickPositions: []
+                },
+                yAxis: {
+                    endOnTick: false,
+                    startOnTick: false,
+                    labels: {
+                        enabled: false
+                    },
+                    title: {
+                        text: null
+                    },
+                    tickPositions: [0]
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    backgroundColor: null,
+                    borderWidth: 0,
+                    shadow: false,
+                    useHTML: true,
+                    hideDelay: 0,
+                    shared: true,
+                    padding: 0,
+                    positioner: function (w, h, point) {
+                        return { x: point.plotX - w / 2, y: point.plotY - h };
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        animation: false,
+                        lineWidth: 1,
+                        shadow: false,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        marker: {
+                            radius: 1,
+                            states: {
+                                hover: {
+                                    radius: 2
+                                }
+                            }
+                        },
+                        fillOpacity: 0.25
+                    },
+                    column: {
+                        negativeColor: '#910000',
+                        borderColor: 'silver'
+                    }
+                }
+            };
+
+        options = Highcharts.merge(defaultOptions, options);
+
+        return hasRenderToArg ?
+            new Highcharts.Chart(a, options, c) :
+            new Highcharts.Chart(options, b);
+    };
+
+    var start = +new Date(),
+        $tds = $('td[data-sparkline]'),
+        fullLen = $tds.length,
+        n = 0;
+
+    // Creating 153 sparkline charts is quite fast in modern browsers, but IE8 and mobile
+    // can take some seconds, so we split the input into chunks and apply them in timeouts
+    // in order avoid locking up the browser process and allow interaction.
+    function doChunk() {
+        var time = +new Date(),
+            i,
+            len = $tds.length,
+            $td,
+            stringdata,
+            arr,
+            data,
+            chart;
+
+        for (i = 0; i < len; i += 1) {
+            $td = $($tds[i]);
+            stringdata = $td.data('sparkline');
+            arr = stringdata.split('; ');
+            data = $.map(arr[0].split(', '), parseFloat);
+            chart = {};
+
+            if (arr[1]) {
+                chart.type = arr[1];
+            }
+            $td.highcharts('SparkLine', {
+                series: [{
+                    data: data,
+                    pointStart: 1
+                }],
+                tooltip: {
+                    headerFormat: '<span style="font-size: 10px">' + $td.parent().find('th').html() + ', Day {point.x}:</span><br/>',
+                    pointFormat: '<b>{point.y}</b>'
+                },
+                chart: chart
+            });
+
+            n += 1;
+
+            // If the process takes too much time, run a timeout to allow interaction with the browser
+            if (new Date() - time > 500) {
+                $tds.splice(0, i + 1);
+                setTimeout(doChunk, 0);
+                break;
+            }
+
+            // Print a feedback on the performance
+            if (n === fullLen) {
+                $('#result').html('Generated ' + fullLen + ' sparklines in ' + (new Date() - start) + ' ms');
+            }
+        }
+    }
+    doChunk();
   });

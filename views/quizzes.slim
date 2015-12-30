@@ -1,5 +1,5 @@
 include scripts
-/ - data.each_with_index { |e, i| ap JSON.parse(e.values[0])['quiz_statistics'][0].keys if i == 0 }
+script src='//code.highcharts.com/modules/exporting.js'
 - if data.empty?
   h3 No quiz found
 - else
@@ -23,7 +23,6 @@ include scripts
   - scores[:high] = Hash[scores[:high].map { |k, v| [k, v[0] / v[1] * 100] }]
   - scores[:average] = Hash[scores[:average].map { |k, v| [k, v[0] / v[1] * 100] }]
   - scores[:low] = Hash[scores[:low].map { |k, v| [k, v[0] / v[1] * 100] }]
-  - ap scores
   h3 Quiz Statistics (Scores as % of Total)
   - scores = [{ name: 'Lowest Score', data: scores[:low] }, \
               { name: 'Average Score', data: scores[:average] }, \
