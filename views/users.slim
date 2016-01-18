@@ -1,3 +1,5 @@
+/ Use views to select in the long chart
+
 include scripts
 - days_of_week = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
 - views_dow = {}
@@ -44,7 +46,7 @@ table id="table-sparkline"
       th Dicussion Count by Day
   tbody id="tbody-sparkline"
     - views_dow.each do |k, v|
-      - unless v[1].values.all? { |vc| vc == 0 }
+      - unless v[0].values.all? { |vc| vc == 0 }
         tr
           th User_#{k}
           td #{v[0].values.reduce(&:+)}

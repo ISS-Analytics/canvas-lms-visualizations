@@ -1,3 +1,5 @@
+/ Use line_charts
+
 include scripts
 script src='//code.highcharts.com/modules/exporting.js'
 h2 Course Participation
@@ -26,20 +28,15 @@ h2 Course Participation
   end
 div id='views-by-day'
 
-/ div id='container'
 div align='center'
   input type='radio' class='part_view' name='part-view' value='stacked' Stacked
   input type='radio' class='part_view' name='part-view' value='discrete' Discrete
 div id='column-chart-stacked'
   h3 Participations & Views (Stacked)
-  == column_chart v_p, stacked: true
+  == line_chart v_p, stacked: true
 div id='column-chart-discrete'
   h3 Participations & Views (Discrete)
-  == column_chart v_p, discrete: true
-/ h3 Participations
-/ == column_chart participations
-/ h3 Views
-/ == column_chart views
+  == line_chart v_p, discrete: true
 
 javascript:
   var sunday = JSON.parse("#{views_participation_dow['Sunday']}");

@@ -1,3 +1,5 @@
+/ WHAT IS TARDINESS?
+
 include scripts
 script src='//code.highcharts.com/modules/exporting.js'
 h2 Assignments
@@ -17,7 +19,7 @@ h2 Assignments
 - tardiness[:missing] = Hash[tardiness[:missing].map { |k, v| [k, v[0] * v[1]] }]
 - tardiness[:late] = Hash[tardiness[:late].map { |k, v| [k, v[0] * v[1]] }]
 - tardiness[:on_time] = Hash[tardiness[:on_time].map { |k, v| [k, v[0] * v[1]] }]
-h3 Tardiness
+h3 Information about lateness
 - tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
           { name: 'Late Submissions', data: tardiness[:late] }, \
           { name: 'On Time Submissions', data: tardiness[:on_time] }]
