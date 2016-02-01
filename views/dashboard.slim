@@ -1,0 +1,351 @@
+include scripts
+script src='//code.highcharts.com/modules/exporting.js'
+link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
+script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'
+
+/ Activity
+- views = {}
+- activities.each { |activity| views[activity['date']] = activity['views'] }
+- views = Hash[views.sort]
+- participations = Hash.new(0)
+- activities.each { |activity| participations[activity['date']] = activity['participations'] }
+- participations = Hash[participations.sort]
+- v_p = [{name: 'Participations', data: participations}, {name: 'Views', data: views}]
+- views_participation = {}
+- activities.each do |activity| \
+    views_participation[activity['date']] = [activity['views'], activity['participations']] \
+  end
+- views_participation_dow = Hash.new { |hash, key| hash[key] = [] }
+- views_participation.each do |date, _view_par| \
+    dow = Date.parse(date).strftime('%A'); \
+    views_participation_dow[dow] << views_participation[date]; \
+  end
+- views_by_day = {}
+- participations_by_day = {}
+- Date::DAYNAMES.each { |day| views_by_day[day] = 0; participations_by_day[day] = 0 }
+- views_participation_dow.each do |day, view_par| \
+    views_by_day[day] = views_participation_dow[day].map { |arr| arr[0] }.reduce(:+); \
+    participations_by_day[day] = views_participation_dow[day].map { |arr| arr[1] }.reduce(:+); \
+  end
+
+/ Assignments
+- tardiness = {}
+- tardiness[:missing] = {}
+- tardiness[:late] = {}
+- tardiness[:on_time] = {}
+- assignments = assignments.sort_by { |k, _v| k['due_at'] } unless assignments.any? { |k, _v| k['due_at'].nil? }
+- assignments.each do |assignment| \
+    tardiness[:missing][assignment['title']] = [assignment['tardiness_breakdown']['missing'], assignment['tardiness_breakdown']['total']]; \
+    tardiness[:late][assignment['title']] = [assignment['tardiness_breakdown']['late'], assignment['tardiness_breakdown']['total']]; \
+    tardiness[:on_time][assignment['title']] = [assignment['tardiness_breakdown']['on_time'], assignment['tardiness_breakdown']['total']]; \
+  end
+- tardiness[:missing].delete_if { |key, _| key.nil? }
+- tardiness[:late].delete_if { |key, _| key.nil? }
+- tardiness[:on_time].delete_if { |key, _| key.nil? }
+- tardiness[:missing] = Hash[tardiness[:missing].map { |k, v| [k, v[0] * v[1]] }]
+- tardiness[:late] = Hash[tardiness[:late].map { |k, v| [k, v[0] * v[1]] }]
+- tardiness[:on_time] = Hash[tardiness[:on_time].map { |k, v| [k, v[0] * v[1]] }]
+- tard = [{ name: 'Missing Submissions', data: tardiness[:missing] }, \
+          { name: 'Late Submissions', data: tardiness[:late] }, \
+          { name: 'On Time Submissions', data: tardiness[:on_time] }]
+
+- scores = {}
+- assignments.each { |assignment| scores[assignment['title']] =[\
+              assignment['min_score'], assignment['first_quartile'],\
+              assignment['median'], assignment['third_quartile'],\
+              assignment['max_score']] }
+- scores.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
+- scores_percent = {}
+- assignments.each { |assignment| scores_percent[assignment['title']] =[\
+              assignment['min_score'], assignment['first_quartile'],\
+              assignment['median'], assignment['third_quartile'],\
+              assignment['max_score'], assignment['points_possible']] }
+- scores_percent.delete_if { |key, value| key.nil? || value.any?(&:nil?) }
+- scores_percent.each do |key, values| \
+    scores_percent[key] = values.map.each_with_index do |value, index| \
+      value = (value / values[5].to_f * 100).round 2 unless index == 5 \
+    end.compact \
+  end
+
+/ Dicussions
+- discussions = {}
+- discussions_id = {}
+- discussion_height = 0
+- discussions_has_content = true
+- DATE = 0..9 # Use 9 to group by date, -1 to leave times in there
+- unless discussions_list.all? { |dat| dat.nil? || dat.empty? || dat == 'null' }
+  - comments = discussions_list.map { |dat| JSON.parse(dat)['view'] unless dat == 'null' }
+  - discussions = Hash.new(0)
+  - discussions_id = Hash.new(0)
+  - comments.each do |comment|
+    - unless comment.empty?
+      - comment.each do |comms| \
+          discussions[comms['created_at'][DATE]] += 1 unless comms['deleted'] == true; \
+          discussions_id["user_#{comms['user_id']}"] += 1 unless comms['deleted'] == true; \
+          unless comms['replies'].nil?; \
+            comms['replies'].each do |reply| \
+              discussions[reply['created_at'][DATE]] += 1 unless reply['deleted'] == true; \
+              discussions_id["user_#{reply['user_id']}"] += 1 unless reply['deleted'] == true; \
+            end \
+          end \
+        end
+  - discussions = Hash[discussions.sort]
+  - discussions_id = Hash[discussions_id.sort_by { |u, c| c }.reverse]
+  - discussion_height = discussions_id.length * 30
+- else
+  - discussions_has_content = false
+
+/ Student Summaries
+- summaries_tardiness = {}
+- page_views = {}
+- summaries_participations = {}
+- page_part_scatter = {}
+- summaries_tardiness[:missing] = {}
+- summaries_tardiness[:late] = {}
+- summaries_tardiness[:on_time] = {}
+- summaries_tardiness[:floating] = {}
+- student_summaries.each do |user| \
+    summaries_tardiness[:missing]["user_#{user['id']}"] = user['tardiness_breakdown']['missing']; \
+    summaries_tardiness[:late]["user_#{user['id']}"] = user['tardiness_breakdown']['late']; \
+    summaries_tardiness[:on_time]["user_#{user['id']}"] = user['tardiness_breakdown']['on_time']; \
+    summaries_tardiness[:floating]["user_#{user['id']}"] = user['tardiness_breakdown']['floating']; \
+    page_views["user_#{user['id']}"] = user['page_views']; \
+    summaries_participations["user_#{user['id']}"] = user['participations']; \
+    page_part_scatter["user_#{user['id']}"] = [user['page_views'], user['participations']] \
+  end
+- summaries_tard = [{ name: 'Late Submissions', data: summaries_tardiness[:late].sort_by { |user, value| value }.reverse.to_h }, \
+                    { name: 'Missing Submissions', data: summaries_tardiness[:missing] }, \
+                    { name: 'Floating', data: summaries_tardiness[:floating] }, \
+                    { name: 'On Time Submissions', data: summaries_tardiness[:on_time] }]
+- summaries_height = [summaries_tardiness[:late].length, summaries_tardiness[:missing].length, summaries_tardiness[:floating].length, summaries_tardiness[:on_time].length].max * 30
+- pages_height = page_views.length * 30
+- participations_height = summaries_participations.length * 30
+- views_pars_height = [page_views.length, summaries_participations.length].max * 30
+- views_pars = [{name: 'Views', data: page_views}, {name: 'Participations', data: summaries_participations }]
+- views_pars.each do |view_par| \
+    view_par[:data] = Hash[view_par[:data].sort_by { |u, c| c }.reverse]; \
+  end
+
+
+div class='row'
+  h2 align='center' Participations & Views
+  div class='col-md-1'
+  div class='col-md-5'
+    div id='views-by-day'
+  div class='col-md-5'
+    ul class='nav nav-tabs'
+      li class='active'
+        a data-toggle='tab' href='#stackedActivity' Stacked
+      li
+        a data-toggle='tab' href='#discreteActivity' Discrete
+
+    div class='tab-content'
+      div id='stackedActivity' class='tab-pane fade in active'
+        == line_chart v_p, stacked: true
+
+      div id='discreteActivity' class='tab-pane fade'
+        == line_chart v_p, discrete: true
+  div class='col-md-1'
+
+div class='row'
+  h2 align='center' Assignments
+  div class='col-md-1'
+  div class='col-md-5'
+    / h4 Information about lateness
+    == column_chart tard, stacked: true, colors: ['#ED4337', '#434348', '#90ed7d']
+
+  div class='col-md-5'
+    ul class='nav nav-tabs'
+      li class='active'
+        a data-toggle='tab' href='#normalAssignment' Regular
+      li
+        a data-toggle='tab' href='#flippedAssignment' Flipped
+
+    div class='tab-content'
+      div id='normalAssignment' class='tab-pane fade in active'
+        div id='assignment-box-percent'
+
+      div id='flippedAssignment' class='tab-pane fade'
+        div id='assignment-box-flipped'
+  div class='col-md-1'
+
+- if discussions_has_content
+  div class='row'
+    h2 align='center' Discussions
+    div class='col-md-1'
+    div class='col-md-5'
+      / h4 Discussions over time
+      == column_chart discussions
+
+    div class='col-md-5'
+      / h4 Dicussions by Participant
+      == bar_chart discussions_id, height: "#{discussion_height}px"
+
+    div class='col-md-1'
+
+div class='row'
+  h2 align='center' Student Summaries
+  div class='col-md-1'
+  div class='col-md-5'  
+    / h4 Information about lateness
+    == bar_chart summaries_tard, stacked: true, height: "#{summaries_height}px", colors: ['#ED4337', '#434348', '#90ed7d', '#7cb5ec']
+
+  div class='col-md-5'
+    ul class='nav nav-tabs'
+      li class='active'
+        a data-toggle='tab' href='#stackedSummaries' Stacked
+      li
+        a data-toggle='tab' href='#discreteSummaries' Discrete
+
+    div class='tab-content'
+      div id='stackedSummaries' class='tab-pane fade in active'
+        / h4 Page Views & Participations by Student
+        == bar_chart views_pars, stacked: true, height: "#{views_pars_height}px"
+
+      div id='discreteSummaries' class='tab-pane fade'
+        / h4 Page Views & Participations by Student
+        == bar_chart views_pars, discrete: true, height: "#{views_pars_height * 1.5}px"
+  div class='col-md-1'
+
+javascript:
+  var cat = JSON.parse("#{scores.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var values = JSON.parse("#{scores.values}");
+  var cat_percent = JSON.parse("#{scores_percent.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var values_percent = JSON.parse("#{scores_percent.values}");
+  var sunday = JSON.parse("#{views_participation_dow['Sunday']}");
+  var monday = JSON.parse("#{views_participation_dow['Monday']}");
+  var tuesday = JSON.parse("#{views_participation_dow['Tuesday']}");
+  var wednesday = JSON.parse("#{views_participation_dow['Wednesday']}");
+  var thursday = JSON.parse("#{views_participation_dow['Thursday']}");
+  var friday = JSON.parse("#{views_participation_dow['Friday']}");
+  var saturday = JSON.parse("#{views_participation_dow['Saturday']}");
+  var dow = JSON.parse("#{views_by_day.keys}".replace(/&quot;/g, '"').replace(/amp;/g, ''));
+  var views_by_day = JSON.parse("#{views_by_day.values}");
+  var participations_by_day = JSON.parse("#{participations_by_day.values}");
+  $(function () {
+    $('#views-by-day').highcharts({
+        title: {
+            text: 'Views & Participation by Day of Week',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Aggregate Course Level Data',
+            x: -20
+        },
+        xAxis: {
+            categories: dow
+        },
+        yAxis: {
+            title: {
+                text: 'Views & Participation'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Views',
+            data: views_by_day
+        }, {
+            name: 'Participations',
+            data: participations_by_day
+        }]
+    });
+    $('#assignment-box-flipped').highcharts({
+        chart: {
+            type: 'boxplot',
+            inverted: true
+        },
+        title: {
+            text: 'Assignment Scores (%)'
+        },
+        legend: {
+            enabled: false
+        },
+        xAxis: {
+            categories: cat_percent,
+            title: {
+                text: 'Assignments'
+            }
+        },
+        yAxis: {
+            min: -10,
+            max: 110,
+            title: {
+                text: 'Percent Scores'
+            },
+        },
+        series: [{
+            name: 'Observations',
+            data: values_percent,
+            tooltip: {
+                headerFormat: '<em>Assignment: {point.key}</em><br/>'
+            }
+        }, {
+            name: 'Outlier',
+            color: Highcharts.getOptions().colors[0],
+            type: 'scatter',
+            data: [],
+            marker: {
+                fillColor: 'white',
+                lineWidth: 1,
+                lineColor: Highcharts.getOptions().colors[0]
+            },
+            tooltip: {
+                pointFormat: 'Observation: {point.y}'
+            }
+        }]
+    });
+    $('#assignment-box-percent').highcharts({
+        chart: {
+            type: 'boxplot'
+        },
+        title: {
+            text: 'Assignment Scores (%)'
+        },
+        legend: {
+            enabled: false
+        },
+        xAxis: {
+            categories: cat_percent,
+            title: {
+                text: 'Assignments'
+            }
+        },
+        yAxis: {
+            min: 0,
+            max: 100,
+            title: {
+                text: 'Percent Scores'
+            }
+        },
+        series: [{
+            name: 'Observations',
+            data: values_percent,
+            tooltip: {
+                headerFormat: '<em>Assignment: {point.key}</em><br/>'
+            }
+        }, {
+            name: 'Outlier',
+            color: Highcharts.getOptions().colors[0],
+            type: 'scatter',
+            data: [],
+            marker: {
+                fillColor: 'white',
+                lineWidth: 1,
+                lineColor: Highcharts.getOptions().colors[0]
+            },
+            tooltip: {
+                pointFormat: 'Observation: {point.y}'
+            }
+        }]
+    });
+  });
