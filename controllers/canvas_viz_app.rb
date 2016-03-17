@@ -27,13 +27,19 @@ class CanvasVisualizationApp < Sinatra::Base
 
   GOOGLE_OAUTH = 'https://accounts.google.com/o/oauth2/auth'
   GOOGLE_PARAMS = "?response_type=code&client_id=#{ENV['CLIENT_ID']}"
+  COOKIE_VALUE = 13..-1
 
   set :views, File.expand_path('../../views', __FILE__)
   set :public_folder, File.expand_path('../../public', __FILE__)
 
+  configure :development, :test do
+    set :root, 'http://localhost:9292'
+  end
+
   configure :production do
     use Rack::SslEnforcer
     set :session_secret, ENV['MSG_KEY']
+    set :root, 'https://canvas-viz.herokuapp.com'
   end
 
   configure do
@@ -152,6 +158,27 @@ class CanvasVisualizationApp < Sinatra::Base
     redirect '/tokens'
   end
 
+  get '/tokens/:access_key/:course_id/dashboard/?',
+      auth: [:teacher, :token_set] do
+    cookie = env['HTTP_COOKIE'][COOKIE_VALUE]
+    cookie = { 'rack.session' => cookie }
+    url = "#{settings.root}/tokens/#{params[:access_key]}/#{params[:course_id]}"
+    activity_url = "#{url}/activity?api_mode=true"
+    assignment_url = "#{url}/assignments?api_mode=true"
+    discussion_url = "#{url}/discussion_topics?no_analytics=true&api_mode=true"
+    student_summaries_url = "#{url}/student_summaries?api_mode=true"
+    activity = HTTParty.get activity_url, cookies: cookie
+    assignment = HTTParty.get assignment_url, cookies: cookie
+    discussions = HTTParty.get discussion_url, cookies: cookie
+    student_summaries = HTTParty.get student_summaries_url, cookies: cookie
+    slim :dashboard, locals: {
+      activities: JSON.parse(activity, quirks_mode: true),
+      assignments: JSON.parse(assignment, quirks_mode: true),
+      discussions_list: JSON.parse(discussions, quirks_mode: true),
+      student_summaries: JSON.parse(student_summaries, quirks_mode: true)
+    }
+  end
+
   get '/tokens/:access_key/:course_id/:data/?',
       auth: [:teacher, :token_set] do
     token = you_shall_not_pass!(params['access_key'])
@@ -161,6 +188,7 @@ class CanvasVisualizationApp < Sinatra::Base
     )
     service_object = service_object_traffic_controller(params, params_for_api)
     result = service_object.call
+    return result if params['api_mode'] == 'true'
     slim :"#{params['data']}",
          locals: { data: JSON.parse(result, quirks_mode: true) }
   end
